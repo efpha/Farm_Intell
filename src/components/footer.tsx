@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
                 </span>
 
                 <span className="text-emerald-600 hover:text-emerald-800 hover:underline underline-offset-4">
-                {/* TODO */}    <a href="https://github.com/efpha" target="_blank" rel="noopener noreferrer">Sam Odwori</a>
+                {/* TODO */}    <a href="https://github.com/renm226" target="_blank" rel="noopener noreferrer">Samson Odwori</a>
                 </span>
             </div>
       </footer>
