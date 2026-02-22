@@ -8,136 +8,134 @@ const Navbar: React.FC = () => {
 
   const goTo = (path: string) => {
     navigate(path);
-    setIsOpen(false); // close sidebar after clicking
+    setIsOpen(false);
   };
 
   return (
     <>
-      <header className="px-4 lg:px-6 h-14 flex items-center border-b bg-white">
-        {/* Logo */}
-        <div
-          onClick={() => goTo("/")}
-          className="flex items-center gap-2 font-semibold cursor-pointer"
-        >
-          <Leaf className="h-6 w-6 text-emerald-600" />
-          <span>FarmIntell</span>
-        </div>
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b shadow-sm">
+        <div className="mx-auto max-w-7xl h-16 px-4 lg:px-8 flex items-center">
 
-        {/* Desktop Nav */}
-        <nav className="ml-auto hidden md:flex gap-4 sm:gap-6">
-          <span
+          {/* LEFT — Brand */}
+          <div
             onClick={() => goTo("/")}
-            className="text-sm font-medium text-black hover:underline underline-offset-4 cursor-pointer"
+            className="flex items-center gap-2 cursor-pointer font-semibold select-none"
           >
-            Home
-          </span>
+            <Leaf className="h-7 w-7 text-emerald-600" />
+            <span className="text-lg text-gray-900">FarmIntell</span>
+          </div>
 
-          <span
-            onClick={() => goTo("/about")}
-            className="text-sm font-medium text-black hover:underline underline-offset-4 cursor-pointer"
+          {/* CENTER — Main Nav (Re-ordered by importance) */}
+          <nav className="hidden md:flex ml-auto mr-auto gap-8">
+            {[
+              { label: "Home", path: "/" },
+              { label: "AI Models", path: "/models" },
+              { label: "Market Prices", path: "/market-price" },
+              { label: "Irrigation", path: "/irrigation" },
+              { label: "Community", path: "/community" },
+              { label: "About", path: "/about" },
+            ].map((item) => (
+              <span
+                key={item.path}
+                onClick={() => goTo(item.path)}
+                className="relative text-sm font-medium text-gray-800 cursor-pointer hover:text-emerald-600 transition"
+              >
+                {item.label}
+                <span className="absolute left-0 -bottom-1 h-[2px] w-0 bg-emerald-600 transition-all duration-300 hover:w-full"></span>
+              </span>
+            ))}
+          </nav>
+
+          {/* RIGHT — Authentication */}
+          <div className="hidden md:flex gap-4 items-center ml-auto">
+            <button
+              onClick={() => goTo("/login")}
+              className="text-sm font-medium text-gray-800 hover:text-emerald-600 transition"
+            >
+              Login
+            </button>
+
+            <button
+              onClick={() => goTo("/register")}
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition"
+            >
+              Register
+            </button>
+          </div>
+
+          {/* Mobile Menu */}
+          <button
+            onClick={() => setIsOpen(true)}
+            className="ml-auto md:hidden rounded-lg p-2 hover:bg-gray-100 transition"
           >
-            About
-          </span>
-
-          <span
-            onClick={() => goTo("/models")}
-            className="text-sm font-medium text-black hover:underline underline-offset-4 cursor-pointer"
-          >
-            AI models
-          </span>
-
-          <span
-            onClick={() => goTo("/market-price")}
-            className="text-sm font-medium text-black hover:underline underline-offset-4 cursor-pointer"
-          >
-            Market prices
-          </span>
-
-          <span
-            onClick={() => goTo("/community")}
-            className="text-sm font-medium text-black hover:underline underline-offset-4 cursor-pointer"
-          >
-            Community
-          </span>
-        </nav>
-
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsOpen(true)}
-          className="ml-auto md:hidden rounded-xl p-2 hover:bg-slate-100"
-          aria-label="Open menu"
-        >
-          <Menu className="h-6 w-6 text-slate-900" />
-        </button>
+            <Menu className="h-6 w-6" />
+          </button>
+        </div>
       </header>
 
       {/* Overlay */}
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
-          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
         />
       )}
 
-      {/* Sidebar */}
-      <div
-        className={`fixed left-0 top-0 z-100 h-full w-72 bg-white shadow-2xl transform transition-transform duration-300 md:hidden
+      {/* Mobile Sidebar */}
+      <aside
+        className={`fixed top-0 left-0 h-full w-72 bg-white shadow-xl z-50 transition-transform duration-300 md:hidden 
         ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        {/* Sidebar Header */}
-        <div className="flex items-center justify-between border-b px-4 h-14">
-          <div className="flex items-center gap-2 font-semibold">
+        <div className="flex items-center justify-between h-16 border-b px-4">
+          <div className="flex items-center gap-2">
             <Leaf className="h-6 w-6 text-emerald-600" />
-            <span>FarmIntell</span>
+            <span className="font-semibold text-gray-900">FarmIntell</span>
           </div>
 
           <button
             onClick={() => setIsOpen(false)}
-            className="rounded-xl p-2 hover:bg-slate-100"
-            aria-label="Close menu"
+            className="p-2 rounded-lg hover:bg-gray-100 transition"
           >
-            <X className="h-6 w-6 text-slate-900" />
+            <X className="h-6 w-6" />
           </button>
         </div>
 
-        {/* Sidebar Links */}
-        <div className="flex flex-col p-4 gap-2">
+        {/* Mobile nav (priority-based) */}
+        <div className="flex flex-col p-4 space-y-2">
+          {[
+            { label: "Home", path: "/" },
+            { label: "AI Models", path: "/models" },
+            { label: "Market Prices", path: "/market-price" },
+            { label: "Irrigation", path: "/irrigation" },
+            { label: "Community", path: "/community" },
+            { label: "About", path: "/about" },
+          ].map((item) => (
+            <button
+              key={item.path}
+              onClick={() => goTo(item.path)}
+              className="w-full text-left px-4 py-3 rounded-lg text-gray-900 text-sm hover:bg-emerald-50 transition"
+            >
+              {item.label}
+            </button>
+          ))}
+
+          <hr className="my-2" />
+
           <button
-            onClick={() => goTo("/")}
-            className="text-left rounded-xl px-4 py-3 text-sm font-medium text-slate-900 hover:bg-emerald-50"
+            onClick={() => goTo("/login")}
+            className="w-full text-left px-4 py-3 rounded-lg text-gray-900 font-medium hover:bg-emerald-50"
           >
-            Home
+            Login
           </button>
 
           <button
-            onClick={() => goTo("/about")}
-            className="text-left rounded-xl px-4 py-3 text-sm font-medium text-slate-900 hover:bg-emerald-50"
+            onClick={() => goTo("/register")}
+            className="w-full text-left px-4 py-3 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700"
           >
-            About
-          </button>
-
-          <button
-            onClick={() => goTo("/models")}
-            className="text-left rounded-xl px-4 py-3 text-sm font-medium text-slate-900 hover:bg-emerald-50"
-          >
-            AI models
-          </button>
-
-          <button
-            onClick={() => goTo("/market-price")}
-            className="text-left rounded-xl px-4 py-3 text-sm font-medium text-slate-900 hover:bg-emerald-50"
-          >
-            Market prices
-          </button>
-
-          <button
-            onClick={() => goTo("/community")}
-            className="text-left rounded-xl px-4 py-3 text-sm font-medium text-slate-900 hover:bg-emerald-50"
-          >
-            Community
+            Register
           </button>
         </div>
-      </div>
+      </aside>
     </>
   );
 };
