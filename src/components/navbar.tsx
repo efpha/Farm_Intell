@@ -13,6 +13,7 @@ const Navbar: React.FC = () => {
 
   return (
     <>
+      {/* Sticky Navbar */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b shadow-sm">
         <div className="mx-auto max-w-7xl h-16 px-4 lg:px-8 flex items-center">
 
@@ -25,15 +26,13 @@ const Navbar: React.FC = () => {
             <span className="text-lg text-gray-900">FarmIntell</span>
           </div>
 
-          {/* CENTER — Main Nav (Re-ordered by importance) */}
+          {/* CENTER — Main Nav */}
           <nav className="hidden md:flex ml-auto mr-auto gap-8">
             {[
               { label: "Home", path: "/" },
               { label: "AI Models", path: "/models" },
               { label: "Market Prices", path: "/market-price" },
               { label: "Irrigation", path: "/irrigation" },
-              { label: "Community", path: "/community" },
-              { label: "About", path: "/about" },
             ].map((item) => (
               <span
                 key={item.path}
@@ -46,24 +45,32 @@ const Navbar: React.FC = () => {
             ))}
           </nav>
 
-          {/* RIGHT — Authentication */}
-          <div className="hidden md:flex gap-4 items-center ml-auto">
+          {/* RIGHT — Extra Links + Login */}
+          <div className="hidden md:flex gap-6 items-center ml-auto">
+            {[
+              { label: "Community", path: "/community" },
+              { label: "About", path: "/about" },
+              { label: "Contact", path: "/contact" },
+            ].map((item) => (
+              <span
+                key={item.path}
+                onClick={() => goTo(item.path)}
+                className="text-sm font-medium text-gray-800 cursor-pointer hover:text-emerald-600 transition"
+              >
+                {item.label}
+              </span>
+            ))}
+
+            {/* Login always last */}
             <button
               onClick={() => goTo("/login")}
-              className="text-sm font-medium text-gray-800 hover:text-emerald-600 transition"
+              className="ml-4 text-sm font-medium text-gray-800 hover:text-emerald-600 transition"
             >
               Login
             </button>
-
-            <button
-              onClick={() => goTo("/register")}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition"
-            >
-              Register
-            </button>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(true)}
             className="ml-auto md:hidden rounded-lg p-2 hover:bg-gray-100 transition"
@@ -100,7 +107,7 @@ const Navbar: React.FC = () => {
           </button>
         </div>
 
-        {/* Mobile nav (priority-based) */}
+        {/* Mobile nav */}
         <div className="flex flex-col p-4 space-y-2">
           {[
             { label: "Home", path: "/" },
@@ -109,6 +116,7 @@ const Navbar: React.FC = () => {
             { label: "Irrigation", path: "/irrigation" },
             { label: "Community", path: "/community" },
             { label: "About", path: "/about" },
+            { label: "Contact", path: "/contact" },
           ].map((item) => (
             <button
               key={item.path}
@@ -121,18 +129,12 @@ const Navbar: React.FC = () => {
 
           <hr className="my-2" />
 
+          {/* Login at the very bottom */}
           <button
             onClick={() => goTo("/login")}
             className="w-full text-left px-4 py-3 rounded-lg text-gray-900 font-medium hover:bg-emerald-50"
           >
             Login
-          </button>
-
-          <button
-            onClick={() => goTo("/register")}
-            className="w-full text-left px-4 py-3 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700"
-          >
-            Register
           </button>
         </div>
       </aside>

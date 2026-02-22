@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { API_BASE } from "../config.ts";
+import { API_BASE } from "@/config";
 
 const DetectPage: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);

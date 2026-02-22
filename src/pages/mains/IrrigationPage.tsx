@@ -6,12 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { API_BASE } from "../config.ts";
+import { API_BASE } from "@/config";
 
+interface LocationResult {
+  display_name: string;
+  [key: string]: unknown;
+}
 
 const IrrigationPage: React.FC = () => {
   const [location, setLocation] = useState<string>("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<LocationResult[]>([]);
   const [moisture, setMoisture] = useState<number>(50);
   const [temperature, setTemperature] = useState<number | null>(null);
   const [pressure, setPressure] = useState<number | null>(null);
@@ -32,7 +36,7 @@ const IrrigationPage: React.FC = () => {
     }
   };
 
-  const selectLocation = (place: any) => {
+  const selectLocation = (place: LocationResult) => {
     setLocation(place.display_name);
     setSearchResults([]);
   };
@@ -133,8 +137,8 @@ const IrrigationPage: React.FC = () => {
                         type="text"
                         value={moisture}
                         onChange={(e) => {
-                          let value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                          let num = value ? Number(value) : 0;
+                          const value = e.target.value.replace(/\D/g, ""); 
+                          const num = value ? Number(value) : 0;
 
                           if (num < 0 || num > 100) {
                             alert("Please enter a value between 0 and 100.");

@@ -1,74 +1,121 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+
+// Footer link data
+const footerData = {
+  services: [
+    { label: "Crop Disease Detection", path: "/detect" },
+    { label: "AI Irrigation Advisor", path: "/irrigation" },
+    { label: "Market Price Checker", path: "/market-price" },
+    { label: "Farm Community Forum", path: "/community" },
+  ],
+  company: [
+    { label: "About Us", path: "/about" },
+    { label: "Contact", path: "/contact" },
+    { label: "Our AI Models", path: "/models" },
+    { label: "Careers", path: "/careers" },
+  ],
+  legal: [
+    { label: "Terms of Use", path: "/terms" },
+    { label: "Privacy Policy", path: "/privacy" },
+    { label: "Cookie Policy", path: "/cookie" },
+  ],
+  contributors: [
+    {
+      label: "Keffa Muthuri",
+      url: "https://github.com/efpha",
+      color: "text-blue-600",
+    },
+    {
+      label: "Samson Odwori",
+      url: "https://github.com/renm226",
+      color: "text-emerald-600",
+    },
+  ],
+};
 
 const Footer: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleNavigate = (path: string) => {
+    navigate(path);
+  };
+
   return (
     <footer className="w-full bg-gray-100 text-gray-700 border-t">
       <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10">
 
-        {/* SECTION 1 — Services */}
+        {/* Services */}
         <div>
           <h6 className="font-semibold text-gray-900 mb-3">Farm Services</h6>
           <ul className="flex flex-col space-y-2 text-sm">
-            <li className="hover:underline cursor-pointer">Crop Disease Detection</li>
-            <li className="hover:underline cursor-pointer">AI Irrigation Advisor</li>
-            <li className="hover:underline cursor-pointer">Market Price Checker</li>
-            <li className="hover:underline cursor-pointer">Farm Community Forum</li>
+            {footerData.services.map((item) => (
+              <li
+                key={item.label}
+                onClick={() => handleNavigate(item.path)}
+                className="hover:underline cursor-pointer"
+              >
+                {item.label}
+              </li>
+            ))}
           </ul>
         </div>
 
-        {/* SECTION 2 — Company */}
+        {/* Company */}
         <div>
           <h6 className="font-semibold text-gray-900 mb-3">Company</h6>
           <ul className="flex flex-col space-y-2 text-sm">
-            <li className="hover:underline cursor-pointer">About Us</li>
-            <li className="hover:underline cursor-pointer">Contact</li>
-            <li className="hover:underline cursor-pointer">Our AI Models</li>
-            <li className="hover:underline cursor-pointer">Careers</li>
+            {footerData.company.map((item) => (
+              <li
+                key={item.label}
+                onClick={() => handleNavigate(item.path)}
+                className="hover:underline cursor-pointer"
+              >
+                {item.label}
+              </li>
+            ))}
           </ul>
         </div>
 
-        {/* SECTION 3 — Legal */}
+        {/* Legal */}
         <div>
           <h6 className="font-semibold text-gray-900 mb-3">Legal</h6>
           <ul className="flex flex-col space-y-2 text-sm">
-            <li className="hover:underline cursor-pointer">Terms of Use</li>
-            <li className="hover:underline cursor-pointer">Privacy Policy</li>
-            <li className="hover:underline cursor-pointer">Cookie Policy</li>
+            {footerData.legal.map((item) => (
+              <li
+                key={item.label}
+                onClick={() => handleNavigate(item.path)}
+                className="hover:underline cursor-pointer"
+              >
+                {item.label}
+              </li>
+            ))}
           </ul>
         </div>
 
-        {/* SECTION 4 — Contributors */}
+        {/* Contributors */}
         <div>
           <h6 className="font-semibold text-gray-900 mb-3">Contributors</h6>
           <ul className="flex flex-col space-y-2 text-sm">
-            <li>
-              <a
-                href="https://github.com/efpha"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                Keffa Muthuri
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://github.com/renm226"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-emerald-600 hover:underline"
-              >
-                Samson Odwori
-              </a>
-            </li>
+            {footerData.contributors.map((c) => (
+              <li key={c.label}>
+                <a
+                  href={c.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${c.color} hover:underline`}
+                >
+                  {c.label}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
 
-        {/* SECTION 5 — Newsletter */}
+        {/* Newsletter */}
         <div className="lg:col-span-1">
           <h6 className="font-semibold text-gray-900 mb-3">Newsletter</h6>
           <p className="text-sm mb-2">Get updates on new AI tools & farm insights.</p>
-
           <div className="flex mt-2">
             <input
               type="email"
@@ -82,7 +129,6 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      {/* BOTTOM COPYRIGHT BAR */}
       <div className="border-t py-4 text-center text-xs text-gray-500">
         © 2026 FarmIntell — Empowering Smart Agriculture
       </div>

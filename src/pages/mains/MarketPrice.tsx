@@ -1,4 +1,6 @@
+// src/pages/mains/MarketPrice.tsx
 import { useState, useMemo } from "react";
+import { JSX } from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -12,9 +14,25 @@ import {
   Filter,
 } from "lucide-react";
 
-const CATEGORIES = ["All", "Grains", "Vegetables", "Fruits", "Livestock", "Dairy"];
+// Categories
+const CATEGORIES = ["All", "Grains", "Vegetables", "Fruits", "Livestock", "Dairy"] as const;
+type Category = typeof CATEGORIES[number];
 
-const PRODUCTS = [
+// Product type
+interface Product {
+  id: number;
+  name: string;
+  category: Category | string;
+  unit: string;
+  price: number;
+  prev: number;
+  market: string;
+  updated: string;
+  icon: string;
+}
+
+// Product data
+const PRODUCTS: Product[] = [
   // Grains
   { id: 1, name: "Maize (White)", category: "Grains", unit: "90kg bag", price: 3200, prev: 3000, market: "Wakulima Market", updated: "2h ago", icon: "🌽" },
   { id: 2, name: "Wheat", category: "Grains", unit: "90kg bag", price: 4800, prev: 4900, market: "Eldoret Grain Market", updated: "3h ago", icon: "🌾" },
@@ -46,13 +64,15 @@ const PRODUCTS = [
   { id: 20, name: "Eggs (tray)", category: "Dairy", unit: "per tray (30 eggs)", price: 480, prev: 510, market: "Ruiru Market", updated: "3h ago", icon: "🥚" },
 ];
 
-function getTrend(price, prev) {
+// Utility: price trend
+function getTrend(price: number, prev: number): "up" | "down" | "flat" {
   if (price > prev) return "up";
   if (price < prev) return "down";
   return "flat";
 }
 
-function TrendBadge({ price, prev }) {
+// Trend Badge component
+function TrendBadge({ price, prev }: { price: number; prev: number }) {
   const trend = getTrend(price, prev);
   const pct = prev !== 0 ? Math.abs(((price - prev) / prev) * 100).toFixed(1) : "0.0";
 
@@ -73,14 +93,20 @@ function TrendBadge({ price, prev }) {
   );
 }
 
-function CategoryIcon({ name }) {
-  const map = { Grains: <Wheat className="h-4 w-4" />, Vegetables: <Leaf className="h-4 w-4" />, Fruits: <ShoppingBasket className="h-4 w-4" /> };
+// Category Icon component
+function CategoryIcon({ name }: { name: string }) {
+  const map: Record<string, JSX.Element> = {
+    Grains: <Wheat className="h-4 w-4" />,
+    Vegetables: <Leaf className="h-4 w-4" />,
+    Fruits: <ShoppingBasket className="h-4 w-4" />,
+  };
   return map[name] || <ShoppingBasket className="h-4 w-4" />;
 }
 
+// Main component
 export default function MarketPrice() {
-  const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [search, setSearch] = useState<string>("");
+  const [activeCategory, setActiveCategory] = useState<string>("All");
   const [lastRefreshed] = useState(() => new Date().toLocaleTimeString());
 
   const stats = useMemo(() => {
@@ -99,9 +125,9 @@ export default function MarketPrice() {
   }, [search, activeCategory]);
 
   // Group by category for display
-  const grouped = useMemo(() => {
+  const grouped: Record<string, Product[]> = useMemo(() => {
     if (activeCategory !== "All") return { [activeCategory]: filtered };
-    return filtered.reduce((acc, p) => {
+    return filtered.reduce((acc: Record<string, Product[]>, p) => {
       if (!acc[p.category]) acc[p.category] = [];
       acc[p.category].push(p);
       return acc;
@@ -115,23 +141,19 @@ export default function MarketPrice() {
         <div className="mx-auto max-w-7xl px-4 py-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">
-                AgriMarket Prices
-              </h1>
+              <h1 className="text-2xl font-bold text-slate-900">AgriMarket Prices</h1>
               <p className="mt-0.5 text-sm text-slate-500">
                 Live commodity prices from major markets across Kenya
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-400">
-              <RefreshCw className="h-3.5 w-3.5" />
-              Last updated: {lastRefreshed}
+              <RefreshCw className="h-3.5 w-3.5" /> Last updated: {lastRefreshed}
             </div>
           </div>
         </div>
       </header>
 
       <div className="mx-auto max-w-7xl px-4 py-6 space-y-6">
-
         {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="rounded-2xl border bg-white p-4 shadow-sm">
@@ -171,9 +193,7 @@ export default function MarketPrice() {
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
                   className={`flex-shrink-0 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors ${
-                    activeCategory === cat
-                      ? "bg-emerald-600 text-white"
-                      : "border text-slate-600 hover:bg-slate-50"
+                    activeCategory === cat ? "bg-emerald-600 text-white" : "border text-slate-600 hover:bg-slate-50"
                   }`}
                 >
                   {cat}
@@ -203,12 +223,11 @@ export default function MarketPrice() {
 
               {/* Rows */}
               <div className="divide-y">
-                {items.map(product => (
+                {items.map((product: Product) => (
                   <div
                     key={product.id}
                     className="grid grid-cols-12 gap-2 items-center px-5 py-3.5 text-sm hover:bg-slate-50 transition-colors"
                   >
-                    {/* Product Name */}
                     <div className="col-span-4 flex items-center gap-2.5">
                       <span className="text-lg leading-none">{product.icon}</span>
                       <div className="min-w-0">
@@ -219,27 +238,15 @@ export default function MarketPrice() {
                         </div>
                       </div>
                     </div>
-
-                    {/* Current Price */}
                     <div className="col-span-2 text-right font-semibold text-slate-900">
                       {product.price.toLocaleString()}
                       <div className="text-xs font-normal text-slate-400">{product.unit}</div>
                     </div>
-
-                    {/* Prev Price */}
-                    <div className="col-span-2 text-right text-slate-400 hidden sm:block">
-                      {product.prev.toLocaleString()}
-                    </div>
-
-                    {/* Change */}
+                    <div className="col-span-2 text-right text-slate-400 hidden sm:block">{product.prev.toLocaleString()}</div>
                     <div className="col-span-2 flex justify-center">
                       <TrendBadge price={product.price} prev={product.prev} />
                     </div>
-
-                    {/* Updated */}
-                    <div className="col-span-2 text-right text-xs text-slate-400 hidden md:block">
-                      {product.updated}
-                    </div>
+                    <div className="col-span-2 text-right text-xs text-slate-400 hidden md:block">{product.updated}</div>
                   </div>
                 ))}
               </div>
@@ -254,7 +261,6 @@ export default function MarketPrice() {
           </div>
         )}
 
-        {/* Footer note */}
         <p className="text-center text-xs text-slate-400 pb-4">
           Prices are indicative wholesale rates collected from market reporters. Always confirm with local buyers before transacting.
         </p>
