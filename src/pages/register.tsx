@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../supabaseClient";  
+import { supabase } from "../supabaseClient";
 import { Eye, EyeOff, Leaf, Mail, Lock, User, Phone } from "lucide-react";
+import { useToast } from "../components/toast/toast";
 
 const RegisterPage: React.FC = () => {
   const [firstName, setFirstName] = useState("");
@@ -12,22 +13,28 @@ const RegisterPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [message, setMessage] = useState("");
+  const { success, error, warning } = useToast();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const { data, error } = await supabase.auth.signUp({
+
+    // Client-side password match check
+    if (password !== confirmPassword) {
+      warning("Passwords don't match", "Please make sure both passwords are identical.");
+      return;
+    }
+
+    const { data, error: supabaseError } = await supabase.auth.signUp({
       email,
       password,
     });
 
-    if (error) {
-      console.error("Error signing up:", error);
-      setMessage(error.message);
+    if (supabaseError) {
+      console.error("Error signing up:", supabaseError);
+      error("Registration failed", supabaseError.message);
     } else {
       console.log("Sign up successful:", data);
-      setMessage("Check your email for verification!");
+      success("Account created!", "Check your email to verify your account.");
     }
   };
 
@@ -146,7 +153,7 @@ const RegisterPage: React.FC = () => {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-700 py-3 text-sm font-semibold text-white shadow-md hover:from-emerald-600 hover:to-emerald-800 transition"
+              className="w-full rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-700 py-3 text-sm font-semibold text-white shadow-md hover:from-emerald-600 hover:to-emerald-800 transition cursor-pointer"
             >
               Register
             </button>
