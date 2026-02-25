@@ -120,14 +120,13 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
 
   const handleDismiss = () => {
     setLeaving(true);
-    setTimeout(() => onDismiss(toast.id), 350);
+    setTimeout(() => onDismiss(toast.id), 500);
   };
 
   return (
     <div
       style={{
         transition: "all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
-        transform: visible && !leaving ? "translateX(0) scale(1)" : "translateX(110%) scale(0.92)",
         opacity: visible && !leaving ? 1 : 0,
       }}
       className={`
