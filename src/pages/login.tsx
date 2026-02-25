@@ -1,18 +1,32 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 import { Eye, EyeOff, Leaf, Mail, Lock } from "lucide-react";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [message, setMessage] = useState("");
 
-  // Handle login form submit
-  const handleLogin = (e: React.FormEvent) => {
+  // user login
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Replace with real API call
-    console.log("Logging in with:", { email, password });
-    alert(`Logging in with: ${email}`);
+    
+    const { data, error } = await supabase.auth.signInWithPassword(
+      {
+        email,
+        password
+      }
+    );
+
+    if (error) {
+      console.error("Error signing up:", error);
+      setMessage(error.message);
+    } else {
+      console.log("Sign in successful:", data);
+      setMessage("Success");
+    }
   };
 
   return (
