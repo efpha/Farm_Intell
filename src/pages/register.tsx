@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "../supabaseClient";  
 import { Eye, EyeOff, Leaf, Mail, Lock, User, Phone } from "lucide-react";
 
 const RegisterPage: React.FC = () => {
@@ -11,16 +12,23 @@ const RegisterPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [message, setMessage] = useState("");
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
+    
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      console.error("Error signing up:", error);
+      setMessage(error.message);
+    } else {
+      console.log("Sign up successful:", data);
+      setMessage("Check your email for verification!");
     }
-    // Replace with your real API call
-    console.log("Registering:", { firstName, lastName, phoneNumber, email, password });
-    alert(`Registered ${firstName} ${lastName}`);
   };
 
   return (
