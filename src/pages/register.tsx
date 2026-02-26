@@ -18,13 +18,13 @@ const RegisterPage: React.FC = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Client-side password match check
+    // pass match check
     if (password !== confirmPassword) {
       warning("Passwords don't match", "Please make sure both passwords are identical.");
       return;
     }
 
-    const { data, error: supabaseError } = await supabase.auth.signUp({
+    const { error: supabaseError } = await supabase.auth.signUp({
       email,
       password,
     });
@@ -33,7 +33,6 @@ const RegisterPage: React.FC = () => {
       console.error("Error signing up:", supabaseError);
       error("Registration failed", supabaseError.message);
     } else {
-      console.log("Sign up successful:", data);
       success("Account created!", "Check your email to verify your account.");
     }
   };

@@ -13,12 +13,11 @@ const LoginPage: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (authError) {
       error("Login failed", authError.message);
     } else {
-      console.log("Sign in successful:", data);
       success("Welcome back!", "You've logged in successfully.");
     }
   };
