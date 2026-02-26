@@ -19,41 +19,25 @@ export default function ThreadForm({ isOpen, onClose, onThreadCreated }: ThreadF
   const [threadTitle, setThreadTitle] = useState("");
   const [threadContent, setThreadContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { success, error } = useToast();
+  const { success, error } = useToast(); 
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
 
-  // I want to replace this hardcoded categories with once from supabase 'Categories' table
-  // const categories: Category[] = useMemo(
-  //   () => [
-  //     { id: 1, name: "General Farming" },
-  //     { id: 2, name: "Crop Protection" },
-  //     { id: 3, name: "Soil Health" },
-  //     { id: 4, name: "Equipment Advice" },
-  //     { id: 5, name: "Agri AI" },
-  //     { id: 6, name: "Agriculture Product Prices" },
-  //   ],
-  //   []
-  // );
+  useEffect(() => {
+    const fetchCategoriesData = async () => {
+      try {
+        const data = await fetchCategories();
+        setCategories(data);
+      } catch (err: any) {
+        setCategoriesError(err.message || "Failed to load categories");
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
 
-
- 
-const [categories, setCategories] = useState<Category[]>([]);
-const [loadingCategories, setLoadingCategories] = useState(true);
-const [categoriesError, setCategoriesError] = useState<string | null>(null);
-
-useEffect(() => {
-  const fetchCategoriesData = async () => {
-    try {
-      const data = await fetchCategories();
-      setCategories(data);
-    } catch (err: any) {
-      setCategoriesError(err.message || "Failed to load categories");
-    } finally {
-      setLoadingCategories(false);
-    }
-  };
-
-  fetchCategoriesData();
-}, []);
+    fetchCategoriesData();
+  }, []);
 
   const resetForm = () => {
     setThreadTitle("");
