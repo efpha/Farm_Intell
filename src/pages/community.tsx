@@ -8,42 +8,104 @@ import {
   Flame,
   ChevronLeft,
   ChevronRight,
+  MessageCircle,
+  Loader2,
 } from "lucide-react";
 import ThreadForm from "../components/threadForm";
-import { fetchCategories } from "../services/threadService";
+import { fetchCategories, fetchThreads } from "../services/threadService";
+import { useToast } from "../components/toast/toast";
 
 type Category = {
   id: number;
   name: string;
 };
 
+type Thread = {
+  id: number;
+  title: string;
+  content: string;
+  created_at: string;
+  reply_count?: number;
+  categories: { name: string } | null;
+  users: { email: string } | null;
+};
+
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60_000);
+
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} minute${mins !== 1 ? "s" : ""} ago`;
+
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hour${hrs !== 1 ? "s" : ""} ago`;
+  
+  const days = Math.floor(hrs / 24);
+  return `${days} day${days !== 1 ? "s" : ""} ago`;
+}
+
+function displayName(email: string): string {
+  return email.split("@")[0];
+}
+
+const CATEGORY_COLOURS: Record<string, string> = {
+  "General Farming":            "bg-green-50 text-green-700",
+  "Crop Protection":            "bg-amber-50 text-amber-700",
+  "Soil Health":                "bg-emerald-50 text-emerald-700",
+  "Equipment Advice":           "bg-blue-50 text-blue-700",
+  "Agri AI":                    "bg-violet-50 text-violet-700",
+  "Agriculture Product Prices": "bg-orange-50 text-orange-700",
+};
+
+
 export default function CommunityForumPage() {
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const [categoriesError, setCategoriesError] = useState<string | null>(null);
-  const filterScrollRef = useRef<HTMLDivElement>(null);   // Ref for the scrollable filter row
+  const [activeCategory, setActiveCategory] = useState<number | null>(null);
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [loadingThreads, setLoadingThreads] = useState(true);
+  const filterScrollRef = useRef<HTMLDivElement>(null);
+  const { error } = useToast();
 
-  //Set categories from supabase to state
+  // Fetch categories
   useEffect(() => {
-    const fetchCategoriesData = async () => {
-      try {
-        const data = await fetchCategories();
-        setCategories(data);
-      } catch (err: any) {
-        setCategoriesError(err.message || "Failed to load categories");
-      } finally {
-        setLoadingCategories(false);
-      }
-    };
-
-    fetchCategoriesData();
+    fetchCategories()
+      .then(setCategories)
+      .catch((err) => error("Failed to load categories", err.message));
   }, []);
 
+  // Fetch threads
+  const loadThreads = async () => {
+    setLoadingThreads(true);
+    try {
+      const data = await fetchThreads();
+      setThreads(data);
+    } catch (err: any) {
+      error("Failed to load threads", err.message);
+    } finally {
+      setLoadingThreads(false);
+    }
+  };
+
+  useEffect(() => {
+    loadThreads();
+  }, []);
+
+  // Filter threads by search + active category
+  const filtered = threads.filter((t) => {
+    const matchesSearch =
+      search.trim() === "" ||
+      t.title.toLowerCase().includes(search.toLowerCase()) ||
+      t.content.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory =
+      activeCategory === null || t.categories?.name === categories.find((c) => c.id === activeCategory)?.name;
+    return matchesSearch && matchesCategory;
+  });
+
   const scrollFilters = (direction: "left" | "right") => {
-    if (!filterScrollRef.current) return;
-    filterScrollRef.current.scrollBy({
+    filterScrollRef.current?.scrollBy({
       left: direction === "left" ? -200 : 200,
       behavior: "smooth",
     });
@@ -51,78 +113,98 @@ export default function CommunityForumPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      {/* Navbar */}
-      <nav className="sticky top-0 z-50">
-        <div className="mx-auto max-w-7xl px-4 py-3">
-          {/* Scrollable filter buttons */}
-          <div className="flex items-center gap-2">
 
-            {/* Left arrow — desktop only */}
-            <button
-              type="button"
-              onClick={() => scrollFilters("left")}
-              aria-label="Scroll filters left"
-              className="hidden lg:flex flex-shrink-0 items-center justify-center rounded-full border p-1.5 shadow-sm hover:bg-slate-50 cursor-pointer"
+      {/* ── Filter + Search Bar ── */}
+      <div className="flex flex-col mt-4 gap-3 px-4 lg:flex-row lg:items-center lg:px-6">
+
+        {/* Filters row */}
+        <div className="order-2 flex items-center gap-3 min-w-0 flex-1 lg:order-none">
+          <button
+            type="button"
+            onClick={() => scrollFilters("left")}
+            aria-label="Scroll filters left"
+            className="hidden lg:flex flex-shrink-0 items-center justify-center rounded-full border bg-white p-1.5 shadow-sm hover:bg-slate-50 cursor-pointer"
+          >
+            <ChevronLeft className="h-4 w-4 text-slate-600" />
+          </button>
+
+          <div className="relative min-w-0 flex-1">
+            <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-8 bg-gradient-to-r from-slate-50 to-transparent" />
+            <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-8 bg-gradient-to-l from-slate-50 to-transparent" />
+            <div
+              ref={filterScrollRef}
+              className="flex items-center gap-3 overflow-x-auto px-1 lg:px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
-              <ChevronLeft className="h-4 w-4 text-slate-600" />
-            </button>
-
-            {/* Scrollable row with fade edges */}
-            <div className="relative min-w-0 flex-1">
-              <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-8" />
-              <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-8" />
-
-              <div
-                ref={filterScrollRef}
-                className="flex items-center gap-3 overflow-x-auto px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              {/* All button */}
+              <button
+                type="button"
+                onClick={() => setActiveCategory(null)}
+                className={`flex-shrink-0 rounded-xl px-3 py-2 text-xs lg:text-sm font-medium transition-colors ${
+                  activeCategory === null
+                    ? "bg-emerald-600 text-white"
+                    : "bg-white border text-slate-600 hover:bg-slate-50"
+                }`}
               >
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    className="flex-shrink-0 rounded-xl bg-emerald-600 px-3 py-2 text-sm text-white transition-colors hover:bg-emerald-700"
-                  >
-                    {cat.name}
-                  </button>
-                ))}
-              </div>
+                All
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setActiveCategory(activeCategory === cat.id ? null : cat.id)}
+                  className={`flex-shrink-0 rounded-xl px-3 py-2 text-xs lg:text-sm font-medium transition-colors ${
+                    activeCategory === cat.id
+                      ? "bg-emerald-600 text-white"
+                      : "bg-white border text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              ))}
             </div>
+          </div>
 
-            {/* Right arrow — desktop only */}
-            <button
-              type="button"
-              onClick={() => scrollFilters("right")}
-              aria-label="Scroll filters right"
-              className="hidden lg:flex flex-shrink-0 items-center justify-center rounded-full border bg-white p-1.5 shadow-sm hover:bg-slate-50 cursor-pointer"
-            >
-              <ChevronRight className="h-4 w-4 text-slate-600" />
-            </button>
+          <button
+            type="button"
+            onClick={() => scrollFilters("right")}
+            aria-label="Scroll filters right"
+            className="hidden lg:flex flex-shrink-0 items-center justify-center rounded-full border bg-white p-1.5 shadow-sm hover:bg-slate-50 cursor-pointer"
+          >
+            <ChevronRight className="h-4 w-4 text-slate-600" />
+          </button>
+        </div>
 
+        {/* Search bar */}
+        <div className="order-1 w-full lg:order-none lg:w-72 xl:w-80 flex-shrink-0">
+          <div className="flex items-center gap-2 rounded-xl border bg-white px-3 py-2 shadow-sm">
+            <Search className="h-4 w-4 flex-shrink-0 text-slate-500" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
+              placeholder="Search topics or solutions..."
+            />
           </div>
         </div>
-      </nav>
+      </div>
 
-      {/* Layout */}
+      {/* ── Layout ── */}
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-12">
+
         {/* Left Sidebar */}
         <aside className="space-y-6 lg:col-span-3">
-          {/* Reputation */}
           <div className="rounded-2xl border bg-white p-5 shadow-sm">
             <h3 className="mb-4 flex items-center gap-2 text-base font-semibold">
               <Trophy className="h-5 w-5 text-amber-600" />
               My Reputation
             </h3>
-
             <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
               <div className="text-center">
                 <div className="text-3xl font-bold text-slate-900">--</div>
                 <div className="text-xs text-slate-500">Total Points</div>
               </div>
-
               <div className="text-right">
-                <div className="text-sm font-medium text-slate-700">
-                  Loading...
-                </div>
+                <div className="text-sm font-medium text-slate-700">Loading...</div>
                 <div className="mt-1 inline-flex rounded-full bg-slate-200 px-3 py-1 text-xs text-slate-700">
                   Badge Status
                 </div>
@@ -130,28 +212,18 @@ export default function CommunityForumPage() {
             </div>
           </div>
 
-          {/* Navigation */}
           <div className="rounded-2xl border bg-white p-5 shadow-sm">
             <h3 className="mb-4 flex items-center gap-2 text-base font-semibold">
               <Compass className="h-5 w-5 text-blue-600" />
               Navigation
             </h3>
-
             <div className="flex flex-col gap-3">
-              <a
-                href="#"
-                className="rounded-xl border px-4 py-2 text-sm hover:bg-slate-50"
-              >
+              <a href="#" className="rounded-xl border px-4 py-2 text-sm hover:bg-slate-50">
                 My Discussions
               </a>
-
-              <a
-                href="#"
-                className="rounded-xl border px-4 py-2 text-sm hover:bg-slate-50"
-              >
+              <a href="#" className="rounded-xl border px-4 py-2 text-sm hover:bg-slate-50">
                 My Replies
               </a>
-
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
@@ -164,100 +236,93 @@ export default function CommunityForumPage() {
           </div>
         </aside>
 
-        {/* Main Feed */}
+        {/* ── Main Feed ── */}
         <main className="space-y-4 lg:col-span-6">
-          {/* Feed Header */}
-          <div className="flex flex-col gap-3 rounded-2xl border bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex w-full items-center gap-2 rounded-xl border bg-white px-3 py-2">
-              <Search className="h-4 w-4 text-slate-500" />
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
-                placeholder="Search for experts, topics, or solutions..."
-              />
-            </div>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-slate-900">Community Discussions</h2>
+            {!loadingThreads && (
+              <span className="text-sm text-slate-500">{filtered.length} post{filtered.length !== 1 ? "s" : ""}</span>
+            )}
           </div>
 
-          {/* Threads Feed */}
-          <div className="space-y-4">
-            <div className="rounded-2xl border bg-white p-5 shadow-sm">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h4 className="text-base font-semibold">
-                    Best organic fertilizer for Wheat?
-                  </h4>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Share your experience with organic fertilizers, compost, or
-                    manure-based solutions for wheat farming.
-                  </p>
-                </div>
-                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-                  Soil Health
-                </span>
-              </div>
-
-              <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
-                <span>Posted by Farmer_Kenya</span>
-                <span>2 hours ago • 14 replies</span>
-              </div>
+          {/* Loading */}
+          {loadingThreads && (
+            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border bg-white py-16 shadow-sm">
+              <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
+              <p className="text-sm text-slate-500">Loading discussions...</p>
             </div>
+          )}
 
-            <div className="rounded-2xl border bg-white p-5 shadow-sm">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h4 className="text-base font-semibold">
-                    How do you control Fall Armyworm effectively?
-                  </h4>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Looking for the best practical methods used in maize farms.
-                  </p>
-                </div>
-                <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
-                  Crop Protection
-                </span>
-              </div>
-
-              <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
-                <span>Posted by AgriExpert</span>
-                <span>1 day ago • 42 replies</span>
-              </div>
+          {/* Empty state */}
+          {!loadingThreads && filtered.length === 0 && (
+            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border bg-white py-16 shadow-sm">
+              <MessageCircle className="h-8 w-8 text-slate-300" />
+              <p className="text-sm font-medium text-slate-500">No discussions found</p>
+              <p className="text-xs text-slate-400">Try a different search or category</p>
             </div>
-          </div>
+          )}
+
+          {/* Thread cards */}
+          {!loadingThreads && filtered.map((thread) => {
+            const categoryName = thread.categories?.name ?? "General";
+            const badgeClass = CATEGORY_COLOURS[categoryName] ?? "bg-slate-100 text-slate-600";
+            const author = thread.users?.email ? displayName(thread.users.email) : "Unknown";
+
+            return (
+              <div
+                key={thread.id}
+                className="rounded-2xl border bg-white p-5 shadow-sm transition-shadow hover:shadow-md cursor-pointer"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <h4 className="text-base font-semibold leading-snug">{thread.title}</h4>
+                    <p className="mt-1 line-clamp-2 text-sm text-slate-600">{thread.content}</p>
+                  </div>
+                  <span className={`flex-shrink-0 rounded-full px-3 py-1 text-xs font-medium ${badgeClass}`}>
+                    {categoryName}
+                  </span>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
+                  <span>Posted by <span className="font-medium text-slate-700">{author}</span></span>
+                  <span className="flex items-center gap-1.5">
+                    {timeAgo(thread.created_at)}
+                    {thread.reply_count !== undefined && (
+                      <>
+                        <span>•</span>
+                        <MessageCircle className="h-3.5 w-3.5" />
+                        {thread.reply_count} {thread.reply_count === 1 ? "reply" : "replies"}
+                      </>
+                    )}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </main>
 
         {/* Right Widgets */}
         <aside className="space-y-6 lg:col-span-3">
-          {/* AI Insights */}
           <div className="rounded-2xl border bg-white p-5 shadow-sm">
             <h3 className="mb-3 flex items-center gap-2 text-base font-semibold">
               <Bot className="h-5 w-5 text-indigo-600" />
               AgriAI Insights
             </h3>
-
             <p className="text-sm text-slate-600">
-              AI is currently monitoring the forum for spam and helpful
-              opportunities.
+              AI is currently monitoring the forum for spam and helpful opportunities.
             </p>
-
             <div className="mt-4 flex items-center justify-between rounded-2xl bg-slate-50 p-4">
-              <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">
-                Active
-              </span>
+              <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">Active</span>
               <span className="text-xs text-slate-500">Moderating Content</span>
             </div>
           </div>
 
-          {/* Trending */}
           <div className="rounded-2xl border bg-white p-5 shadow-sm">
             <h3 className="mb-3 flex items-center gap-2 text-base font-semibold">
               <Flame className="h-5 w-5 text-rose-600" />
               Trending Topics
             </h3>
-
-            <div className="text-sm text-slate-600">
-              Real-time trends appearing soon...
-            </div>
+            <div className="text-sm text-slate-600">Real-time trends appearing soon...</div>
           </div>
         </aside>
       </div>
@@ -266,7 +331,7 @@ export default function CommunityForumPage() {
       <ThreadForm
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onThreadCreated={() => console.log("Thread created successfully")}
+        onThreadCreated={loadThreads}
       />
     </div>
   );
