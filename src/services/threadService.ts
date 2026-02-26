@@ -21,9 +21,9 @@ export const createThread = async (title: string, content: string, category_id: 
 // Fetch threads
 export const fetchThreads = async () => {
   const { data, error } = await supabase
-    .from("threads")
-    .select("*, categories(name), users:user_id(email)")
-    .order("created_at", { ascending: false });
+    .from("Threads")
+    .select("*, Categories(name)") 
+    .order("created_at", { ascending: false }); // TODO: Fetch details of the user who created the thread (e.g., username) and display it in the UI
 
   if (error) throw error;
   return data;
@@ -31,10 +31,8 @@ export const fetchThreads = async () => {
 
 // get categories
 export const fetchCategories = async () => {
-
   const { data, error } = await supabase.from("Categories").select("*");
-
   if (error) throw error;
-  
+  console.log("Fetched categories:", data);
   return data;
 }
