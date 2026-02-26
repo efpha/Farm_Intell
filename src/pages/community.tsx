@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   Search,
   Plus,
@@ -6,10 +6,11 @@ import {
   Trophy,
   Bot,
   Flame,
-  X,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import ThreadForm from "../components/threadForm";
+import { fetchCategories } from "../services/threadService";
 
 type Category = {
   id: number;
@@ -19,27 +20,26 @@ type Category = {
 export default function CommunityForumPage() {
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+  const filterScrollRef = useRef<HTMLDivElement>(null);   // Ref for the scrollable filter row
 
-  // Thread form state
-  const [threadCategory, setThreadCategory] = useState<number>(1);
-  const [threadTitle, setThreadTitle] = useState("");
-  const [threadContent, setThreadContent] = useState("");
+  //Set categories from supabase to state
+  useEffect(() => {
+    const fetchCategoriesData = async () => {
+      try {
+        const data = await fetchCategories();
+        setCategories(data);
+      } catch (err: any) {
+        setCategoriesError(err.message || "Failed to load categories");
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
 
-  // Ref for the scrollable filter row
-  const filterScrollRef = useRef<HTMLDivElement>(null);
-
-  // Demo data (replace with API later)
-  const categories: Category[] = useMemo(
-    () => [
-      { id: 1, name: "General Farming" },
-      { id: 2, name: "Crop Protection" },
-      { id: 3, name: "Soil Health" },
-      { id: 4, name: "Equipment Advice" },
-      { id: 5, name: "Agri AI" },
-      { id: 6, name: "Agriculture Product Prices" },
-    ],
-    []
-  );
+    fetchCategoriesData();
+  }, []);
 
   const scrollFilters = (direction: "left" | "right") => {
     if (!filterScrollRef.current) return;
@@ -47,24 +47,6 @@ export default function CommunityForumPage() {
       left: direction === "left" ? -200 : 200,
       behavior: "smooth",
     });
-  };
-
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-
-  const handleCreateThread = () => {
-    // Replace with API call
-    console.log({
-      categoryId: threadCategory,
-      title: threadTitle,
-      content: threadContent,
-    });
-
-    // Reset
-    setThreadTitle("");
-    setThreadContent("");
-    setThreadCategory(1);
-    closeModal();
   };
 
   return (
@@ -172,7 +154,7 @@ export default function CommunityForumPage() {
 
               <button
                 type="button"
-                onClick={openModal}
+                onClick={() => setIsModalOpen(true)}
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
               >
                 <Plus className="h-4 w-4" />
@@ -280,88 +262,12 @@ export default function CommunityForumPage() {
         </aside>
       </div>
 
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[999] grid place-items-center bg-black/50 p-4">
-          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl">
-            {/* Modal Header */}
-            <div className="mb-5 flex items-center justify-between gap-4">
-              <h2 className="text-xl font-semibold">Start a Conversation</h2>
-
-              <button
-                type="button"
-                onClick={closeModal}
-                className="rounded-xl p-2 hover:bg-slate-100"
-              >
-                <X className="h-5 w-5 text-slate-600" />
-              </button>
-            </div>
-
-            {/* Category */}
-            <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Discussion Category
-              </label>
-              <select
-                value={threadCategory}
-                onChange={(e) => setThreadCategory(Number(e.target.value))}
-                className="w-full rounded-xl border px-4 py-2 text-sm outline-none focus:border-emerald-500"
-              >
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Title */}
-            <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Topic Title
-              </label>
-              <input
-                value={threadTitle}
-                onChange={(e) => setThreadTitle(e.target.value)}
-                placeholder="e.g. Best organic fertilizer for Wheat?"
-                className="w-full rounded-xl border px-4 py-2 text-sm outline-none focus:border-emerald-500"
-              />
-            </div>
-
-            {/* Content */}
-            <div className="mb-6">
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Content Details
-              </label>
-              <textarea
-                value={threadContent}
-                onChange={(e) => setThreadContent(e.target.value)}
-                placeholder="Describe your question or share your knowledge here..."
-                className="min-h-[150px] w-full resize-y rounded-xl border px-4 py-2 text-sm outline-none focus:border-emerald-500"
-              />
-            </div>
-
-            {/* Actions */}
-            <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={closeModal}
-                className="rounded-xl border px-4 py-2 text-sm hover:bg-slate-50"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                onClick={handleCreateThread}
-                className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
-              >
-                Post Discussion
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Thread Form Modal */}
+      <ThreadForm
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onThreadCreated={() => console.log("Thread created successfully")}
+      />
     </div>
   );
 }
