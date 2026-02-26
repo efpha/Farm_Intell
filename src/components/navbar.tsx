@@ -13,7 +13,7 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b shadow-sm">
+      <header className="sticky top-0 z-100 bg-white border-b">
         <div className="mx-auto max-w-7xl h-16 px-4 lg:px-8 flex items-center">
 
           {/* LEFT — Brand */}
@@ -83,7 +83,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-72 bg-white shadow-xl z-50 transition-transform duration-300 md:hidden 
+        className={`fixed top-0 left-0 h-full w-72 bg-white shadow-xl z-99 transition-transform duration-300 md:hidden 
         ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="flex items-center justify-between h-16 border-b px-4">
