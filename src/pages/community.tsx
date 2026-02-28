@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   Plus,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import ThreadForm from "../components/threadForm";
 import { fetchCategories, fetchThreads } from "../services/threadService";
+import { isUserLoggedIn } from '../lib/authServices'
 import { useToast } from "../components/toast/toast";
 
 type Category = {
@@ -67,8 +69,9 @@ export default function CommunityForumPage() {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [loadingThreads, setLoadingThreads] = useState(true);
   const filterScrollRef = useRef<HTMLDivElement>(null);
-  const { error } = useToast();
 
+  const { error } = useToast();
+  const navigate = useNavigate();
   // Fetch categories
   useEffect(() => {
     fetchCategories()
@@ -226,7 +229,17 @@ export default function CommunityForumPage() {
               </a>
               <button
                 type="button"
-                onClick={() => setIsModalOpen(true)}
+                onClick={ async () => {
+                  const loggedIn = await isUserLoggedIn();
+
+                  if (!loggedIn) {
+                    //redirect to login page
+                    navigate("/login");
+                    return;
+                  }
+                  setIsModalOpen(true);
+                }
+                }
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
               >
                 <Plus className="h-4 w-4" />
