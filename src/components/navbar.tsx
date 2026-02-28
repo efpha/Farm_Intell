@@ -1,15 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Leaf, Menu, X } from "lucide-react";
+import { isUserLoggedIn, signOut } from '../lib/authServices'
+import { useToast } from "../components/toast/toast";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const { success, error } = useToast();
 
   const goTo = (path: string) => {
     navigate(path);
     setIsOpen(false);
   };
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const isLoggedIn = await isUserLoggedIn();
+      setLoggedIn(isLoggedIn);
+    };
+    checkLoginStatus();
+  }, []);
+
+    const handleLogout = async () => {
+     try {
+        await signOut();
+        setLoggedIn(false);
+        success("Logged out", "You have been logged out successfully.");
+      } catch(err: any){
+        error("Logout failed, Please try again.", err.message)
+      }
+    }
 
   return (
     <>
@@ -48,19 +70,29 @@ const Navbar: React.FC = () => {
 
           {/* RIGHT — Authentication */}
           <div className="hidden md:flex gap-4 items-center ml-auto">
-            <button
-              onClick={() => goTo("/login")}
-              className="text-sm font-medium text-gray-800 hover:text-emerald-600 transition"
-            >
-              Login
-            </button>
-
-            <button
-              onClick={() => goTo("/register")}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition"
-            >
-              Register
-            </button>
+            {loggedIn ? (
+              <button
+                  onClick={handleLogout}
+                  className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition"
+                >
+                Signout
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => goTo("/login")}
+                  className="text-sm font-medium text-gray-800 hover:text-emerald-600 transition"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => goTo("/register")}
+                  className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition"
+                >
+                  Register
+                </button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu */}
@@ -121,23 +153,36 @@ const Navbar: React.FC = () => {
 
           <hr className="my-2" />
 
-          <button
-            onClick={() => goTo("/login")}
-            className="w-full text-left px-4 py-3 rounded-lg text-gray-900 font-medium hover:bg-emerald-50"
-          >
-            Login
-          </button>
+          {/* Display signin and signup button if user not signed in */}
+          {
+            loggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-3 rounded-lg text-gray-900 font-medium hover:bg-emerald-50"
+              >
+                Signout
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => goTo("/login")}
+                  className="w-full text-left px-4 py-3 rounded-lg text-gray-900 font-medium hover:bg-emerald-50"
+                >
+                  Login
+                </button>
 
-          <button
-            onClick={() => goTo("/register")}
-            className="w-full text-left px-4 py-3 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700"
-          >
-            Register
-          </button>
+                <button
+                  onClick={() => goTo("/register")}
+                  className="w-full text-left px-4 py-3 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700"
+                >
+                  Register
+                </button>
+              </>
+            )
+          }
         </div>
       </aside>
     </>
   );
-};
-
+};  
 export default Navbar;
