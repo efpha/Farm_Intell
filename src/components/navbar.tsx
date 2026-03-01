@@ -15,7 +15,6 @@ const Navbar: React.FC = () => {
     setIsOpen(false);
   };
 
-  //Todo: This should keep listening to auth changes and update the navbar once the state changes
     useEffect(() => {
       let isMounted = true;
 
@@ -28,8 +27,8 @@ const Navbar: React.FC = () => {
 
         checkLoginStatus();
 
-      // 🔥 Listen for auth changes
-      const { data: listener } = onAuthStateChange((event, session) => {
+      // Listen for auth changes
+      const { data: listener } = onAuthStateChange((session) => {
         setLoggedIn(!!session);
       });
 
