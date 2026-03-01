@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Leaf, Menu, X } from "lucide-react";
-import { isUserLoggedIn, signOut } from '../lib/authServices'
+import { isUserLoggedIn, onAuthStateChange, signOut } from '../lib/authServices'
 import { useToast } from "../components/toast/toast";
 
 const Navbar: React.FC = () => {
@@ -15,13 +15,29 @@ const Navbar: React.FC = () => {
     setIsOpen(false);
   };
 
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      const isLoggedIn = await isUserLoggedIn();
-      setLoggedIn(isLoggedIn);
-    };
-    checkLoginStatus();
-  }, []);
+  //Todo: This should keep listening to auth changes and update the navbar once the state changes
+    useEffect(() => {
+      let isMounted = true;
+
+      const checkLoginStatus = async () => {
+        const isLoggedIn = await isUserLoggedIn();
+        if (isMounted) {
+          setLoggedIn(isLoggedIn);
+        }
+      };
+
+        checkLoginStatus();
+
+      // 🔥 Listen for auth changes
+      const { data: listener } = onAuthStateChange((event, session) => {
+        setLoggedIn(!!session);
+      });
+
+      return () => {
+        isMounted = false;
+        listener.subscription.unsubscribe();
+      };
+    }, []);
 
     const handleLogout = async () => {
      try {
