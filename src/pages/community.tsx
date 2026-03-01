@@ -19,6 +19,7 @@ import ThreadForm from "../components/threadForm";
 import { fetchCategories, fetchThreads } from "../services/threadService";
 import { isUserLoggedIn } from "../lib/authServices";
 import { useToast } from "../components/toast/toast";
+import CommunityDiscussions from "@/components/discussions";
 
 type Category = {
   id: number;
@@ -358,83 +359,8 @@ export default function CommunityForumPage() {
             </div>
           </div>
         </aside>
-
-        {/* ── Main Feed ── */}
-        <main className="space-y-4 lg:col-span-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-slate-900">Community Discussions</h2>
-            {!loadingThreads && (
-              <span className="text-sm text-slate-500">
-                {filtered.length} post{filtered.length !== 1 ? "s" : ""}
-              </span>
-            )}
-          </div>
-
-          {/* Loading */}
-          {loadingThreads && (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border bg-white py-16 shadow-sm">
-              <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
-              <p className="text-sm text-slate-500">Loading discussions...</p>
-            </div>
-          )}
-
-          {/* Empty state */}
-          {!loadingThreads && filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border bg-white py-16 shadow-sm">
-              <MessageCircle className="h-8 w-8 text-slate-300" />
-              <p className="text-sm font-medium text-slate-500">No discussions found</p>
-              <p className="text-xs text-slate-400">Try a different search or category</p>
-            </div>
-          )}
-
-          {/* Thread cards — viewable by everyone */}
-          {!loadingThreads &&
-            filtered.map((thread) => {
-              const categoryName = thread.categories?.name ?? "General";
-              const badgeClass =
-                CATEGORY_COLOURS[categoryName] ?? "bg-slate-100 text-slate-600 border-slate-200";
-              const author = thread.users?.email
-                ? displayName(thread.users.email)
-                : "Unknown";
-
-              return (
-                <div
-                  key={thread.id}
-                  className="rounded-2xl border bg-white p-5 shadow-sm transition-shadow hover:shadow-md cursor-pointer"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <h4 className="text-base font-semibold leading-snug">{thread.title}</h4>
-                      <p className="mt-1 line-clamp-2 text-sm text-slate-600">{thread.content}</p>
-                    </div>
-                    <span
-                      className={`flex-shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${badgeClass}`}
-                    >
-                      {categoryName}
-                    </span>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
-                    <span>
-                      Posted by{" "}
-                      <span className="font-medium text-slate-700">{author}</span>
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      {timeAgo(thread.created_at)}
-                      {thread.reply_count !== undefined && (
-                        <>
-                          <span>•</span>
-                          <MessageCircle className="h-3.5 w-3.5" />
-                          {thread.reply_count}{" "}
-                          {thread.reply_count === 1 ? "reply" : "replies"}
-                        </>
-                      )}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-        </main>
+        
+        <CommunityDiscussions search={search} activeCategory={activeCategory}/>
 
         {/* Right Widgets */}
         <aside className="space-y-6 lg:col-span-3">
