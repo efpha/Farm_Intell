@@ -9,6 +9,7 @@ import LoginPage from "./pages/login";
 import MarketPrice from "./pages/MarketPrice"
 import Community from "./pages/community"
 import Footer from "./components/footer"
+import CommunityDiscussions from "@/components/discussions";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/community" element={<Community />} />
+        <Route path="/discussions" element={<CommunityDiscussions />} /> {/* Bora inawork red ni rangi */}
         <Route path="/market-price" element={<MarketPrice />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
