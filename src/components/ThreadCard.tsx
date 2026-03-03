@@ -11,7 +11,7 @@ export default function ThreadCard({ thread }: ThreadCardProps) {
   const categoryName = thread.categories?.name ?? "General";
   const badgeClass =
     CATEGORY_COLOURS[categoryName] ?? "bg-slate-100 text-slate-600 border-slate-200";
-  const author = thread.users?.email ? displayName(thread.users.email) : "Unknown";
+  const author = thread.profiles?.username ? displayName(thread.profiles.username) : "Unknown";
 
   return (
     <div className="rounded-2xl border bg-white p-5 shadow-sm transition-shadow hover:shadow-md cursor-pointer">

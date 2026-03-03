@@ -5,7 +5,7 @@ export type Thread = {
   created_at: string;
   reply_count?: number;
   categories: { name: string } | null;
-  users: { email: string } | null;
+  profiles?: { username: string } | null;
 };
 
 export type Category = {

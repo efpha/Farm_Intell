@@ -1,3 +1,4 @@
+// src/services/threadService.ts
 import { supabase } from "../supabaseClient";
 
 // Create a thread
@@ -22,8 +23,12 @@ export const createThread = async (title: string, content: string, category_id: 
 export const fetchThreads = async () => {
   const { data, error } = await supabase
     .from("Threads")
-    .select("*, Categories(name)") 
-    .order("created_at", { ascending: false }); // TODO: Fetch details of the user who created the thread (e.g., username) and display it in the UI
+    .select(`
+      *,
+      Categories(name),
+      profiles:user_id(username)
+    `)
+    .order("created_at", { ascending: false });
 
   if (error) throw error;
   return data;
