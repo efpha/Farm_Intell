@@ -8,7 +8,7 @@ type ThreadCardProps = {
 };
 
 export default function ThreadCard({ thread }: ThreadCardProps) {
-  const categoryName = thread.categories?.name ?? "General";
+  const categoryName = thread.Categories?.name ?? "General"; //Not fetching the category name from database
   const badgeClass =
     CATEGORY_COLOURS[categoryName] ?? "bg-slate-100 text-slate-600 border-slate-200";
   const author = thread.profiles?.username ? displayName(thread.profiles.username) : "Unknown";
