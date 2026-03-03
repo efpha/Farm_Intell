@@ -15,27 +15,35 @@ const RegisterPage: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { success, error, warning } = useToast();
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleRegister = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    // pass match check
-    if (password !== confirmPassword) {
-      warning("Passwords don't match", "Please make sure both passwords are identical.");
-      return;
+  if (password !== confirmPassword) {
+    warning("Passwords don't match", "Please make sure both passwords are identical.");
+    return;
+  }
+
+  // 1️⃣ Sign up with Supabase Auth
+const { data: authData, error: authError } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    data: {
+      first_name: firstName,
+      last_name: lastName,
+      phone_no: phoneNumber,
     }
+  }
+});
 
-    const { error: supabaseError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+if (authError || !authData.user) {
+  error("Registration failed", authError?.message ?? "Unknown error");
+  return;
+}
 
-    if (supabaseError) {
-      console.error("Error signing up:", supabaseError);
-      error("Registration failed", supabaseError.message);
-    } else {
-      success("Account created!", "Check your email to verify your account.");
-    }
-  };
+// ✅ No profile insert needed — trigger handles it
+success("Account created!", "Check your email to verify your account.");
+};
 
   return (
     <div
