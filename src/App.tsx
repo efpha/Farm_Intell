@@ -10,6 +10,7 @@ import MarketPrice from "./pages/MarketPrice"
 import Community from "./pages/community"
 import Footer from "./components/footer"
 import CommunityDiscussions from "@/components/discussions";
+import AiModels from "./pages/AiModels";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/community" element={<Community />} />
         <Route path="/discussions" element={<CommunityDiscussions />} /> {/* Bora inawork red ni rangi */}
         <Route path="/market-price" element={<MarketPrice />} />
+        <Route path="/models" element={<AiModels />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/detect" element={<DetectPage />} />
