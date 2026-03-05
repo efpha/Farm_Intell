@@ -63,23 +63,6 @@ const Footer: React.FC = () => {
             </li>
           </ul>
         </div>
-
-        {/* SECTION 5 — Newsletter */}
-        <div className="lg:col-span-1">
-          <h6 className="font-semibold text-gray-900 mb-3">Newsletter</h6>
-          <p className="text-sm mb-2">Get updates on new AI tools & farm insights.</p>
-
-          <div className="flex mt-2">
-            <input
-              type="email"
-              placeholder="you@example.com"
-              className="w-full px-3 py-2 border border-gray-300 rounded-l-lg focus:outline-none text-sm"
-            />
-            <button className="bg-emerald-600 text-white px-4 py-2 rounded-r-lg text-sm hover:bg-emerald-700">
-              Subscribe
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* BOTTOM COPYRIGHT BAR */}
