@@ -311,25 +311,6 @@ export default function CommunityForumPage() {
         <aside className="space-y-6 lg:col-span-3">
           <div className="rounded-2xl border bg-white p-5 shadow-sm">
             <h3 className="mb-4 flex items-center gap-2 text-base font-semibold">
-              <Trophy className="h-5 w-5 text-amber-600" />
-              My Reputation
-            </h3>
-            <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-slate-900">--</div>
-                <div className="text-xs text-slate-500">Total Points</div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-medium text-slate-700">Loading...</div>
-                <div className="mt-1 inline-flex rounded-full bg-slate-200 px-3 py-1 text-xs text-slate-700">
-                  Badge Status
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border bg-white p-5 shadow-sm">
-            <h3 className="mb-4 flex items-center gap-2 text-base font-semibold">
               <Compass className="h-5 w-5 text-blue-600" />
               Navigation
             </h3>
