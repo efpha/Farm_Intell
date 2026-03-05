@@ -22,14 +22,14 @@ const HomePage: React.FC = () => {
               <div className="grid grid-cols-1 gap-12 sm:grid-cols-2">
                   <button
                     onClick={() => navigate("/detect")}
-                    className="inline-flex h-12 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-500 to-blue-700 px-5 text-sm font-semibold text-white shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-600 cursor-pointer"
+                    className="inline-flex h-12 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-700 px-5 text-sm font-semibold text-white shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-600 cursor-pointer"
                   >
                     <Plant className="mr-3 h-5 w-5" />
                     Disease Detection
                   </button>
                   <button
                     onClick={() => navigate("/irrigation")}
-                    className="inline-flex h-12 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-500 to-blue-700 px-5 text-sm font-semibold text-white shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 cursor-pointer"
+                    className="inline-flex h-12 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-700 px-5 text-sm font-semibold text-white shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 cursor-pointer"
                   >
                     <Droplets className="mr-3 h-5 w-5" />
                     Irrigation Advisor
