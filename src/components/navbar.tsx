@@ -88,7 +88,7 @@ const Navbar: React.FC = () => {
             {loggedIn ? (
               <button
                   onClick={handleLogout}
-                  className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition"
+                  className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 transition"
                 >
                 Signout
               </button>
@@ -102,7 +102,7 @@ const Navbar: React.FC = () => {
                 </button>
                 <button
                   onClick={() => goTo("/register")}
-                  className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition"
+                  className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 transition"
                 >
                   Register
                 </button>
@@ -181,14 +181,14 @@ const Navbar: React.FC = () => {
               <>
                 <button
                   onClick={() => goTo("/login")}
-                  className="w-full text-left px-4 py-3 rounded-lg text-gray-900 font-medium hover:bg-emerald-50"
+                  className="w-full text-left px-4 py-3 rounded-lg text-gray-900 font-medium bg-emerald-700 hover:bg-emerald-50"
                 >
                   Login
                 </button>
 
                 <button
                   onClick={() => goTo("/register")}
-                  className="w-full text-left px-4 py-3 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700"
+                  className="w-full text-left px-4 py-3 rounded-lg bg-emerald-700 text-white font-medium hover:bg-emerald-700"
                 >
                   Register
                 </button>
