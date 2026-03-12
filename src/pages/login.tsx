@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { Eye, EyeOff, Leaf, Mail, Lock } from "lucide-react";
 import { useToast } from "../components/toast/toast";
+import { useLocation, useNavigate } from "react-router-dom";
+
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -18,6 +20,7 @@ const LoginPage: React.FC = () => {
     if (authError) {
       error("Login failed", authError.message);
     } else {
+      
       success("Welcome back!", "You've logged in successfully.");
     }
   };
