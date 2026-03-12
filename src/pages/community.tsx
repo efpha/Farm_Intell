@@ -4,13 +4,11 @@ import {
   Search,
   Plus,
   Compass,
-  Trophy,
   Bot,
   Flame,
   ChevronLeft,
   ChevronRight,
   MessageCircle,
-  Loader2,
   X,
   LogIn,
   UserPlus,
@@ -34,34 +32,6 @@ type Thread = {
   reply_count?: number;
   categories: { name: string } | null;
   users: { email: string } | null;
-};
-
-
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60_000);
-
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins} minute${mins !== 1 ? "s" : ""} ago`;
-
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} hour${hrs !== 1 ? "s" : ""} ago`;
-
-  const days = Math.floor(hrs / 24);
-  return `${days} day${days !== 1 ? "s" : ""} ago`;
-}
-
-function displayName(email: string): string {
-  return email.split("@")[0];
-}
-
-const CATEGORY_COLOURS: Record<string, string> = {
-  "General Farming": "bg-green-50 text-green-700 border-green-100",
-  "Crop Protection": "bg-amber-50 text-amber-700 border-amber-100",
-  "Soil Health": "bg-emerald-50 text-emerald-700 border-emerald-100",
-  "Equipment Advice": "bg-blue-50 text-blue-700 border-blue-100",
-  "Agri AI": "bg-violet-50 text-violet-700 border-violet-100",
-  "Agriculture Product Prices": "bg-orange-50 text-orange-700 border-orange-100",
 };
 
 function AuthPromptModal({
@@ -189,23 +159,13 @@ export default function CommunityForumPage() {
 
   const handleCreatePost = async () => {
     const loggedIn = await isUserLoggedIn();
+    console.log("isUserLoggedIn result:", loggedIn);
     if (!loggedIn) {
       setIsAuthPromptOpen(true);
       return;
     }
     setIsModalOpen(true);
   };
-
-  const filtered = threads.filter((t) => {
-    const matchesSearch =
-      search.trim() === "" ||
-      t.title.toLowerCase().includes(search.toLowerCase()) ||
-      t.content.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory =
-      activeCategory === null ||
-      t.categories?.name === categories.find((c) => c.id === activeCategory)?.name;
-    return matchesSearch && matchesCategory;
-  });
 
   const scrollFilters = (direction: "left" | "right") => {
     filterScrollRef.current?.scrollBy({
@@ -328,7 +288,7 @@ export default function CommunityForumPage() {
                 My Replies
               </a>
 
-              {/* ── Auth-gated Create Post button ── */}
+              {/* ──Todo: Auth-gated Create Post button ── */}
               <button
                 type="button"
                 onClick={handleCreatePost}
