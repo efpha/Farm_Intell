@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { Eye, EyeOff, Leaf, Mail, Lock } from "lucide-react";
 import { useToast } from "../components/toast/toast";
+import { login } from "../lib/authServices";
 import { useLocation, useNavigate } from "react-router-dom";
 
 
@@ -11,17 +12,21 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { success, error } = useToast();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      await login(email, password);
 
-    if (authError) {
-      error("Login failed", authError.message);
-    } else {
-      
+      const redirectTo = location.state?.from || "/";
+      navigate(redirectTo, { replace: true });
+
       success("Welcome back!", "You've logged in successfully.");
+    } catch (err: any) {
+      error("Login failed", err.message);
     }
   };
 
