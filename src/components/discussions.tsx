@@ -19,7 +19,7 @@ export default function CommunityDiscussions({ search, activeCategory }: Props) 
       t.content.toLowerCase().includes(search.toLowerCase());
     const matchesCategory =
       activeCategory === null ||
-      t.categories?.name === categories.find((c) => c.id === activeCategory)?.name;
+      t.Categories?.name === categories.find((c) => c.id === activeCategory)?.name;
     return matchesSearch && matchesCategory;
   });
 
