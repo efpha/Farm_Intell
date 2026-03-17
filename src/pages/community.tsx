@@ -206,8 +206,8 @@ export default function CommunityForumPage() {
           </button>
 
           <div className="relative min-w-0 flex-1">
-            <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-8 bg-gradient-to-r from-slate-50 to-transparent" />
-            <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-8 bg-gradient-to-l from-slate-50 to-transparent" />
+            <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-8" />
+            <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-8" />
             <div
               ref={filterScrollRef}
               className="flex items-center gap-3 overflow-x-auto px-1 lg:px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
