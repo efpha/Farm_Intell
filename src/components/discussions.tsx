@@ -9,7 +9,7 @@ type Props = {
   activeCategory: number | null;
 };
 
-export default function CommunityDiscussions({ search, activeCategory }: Props) {
+export default function CommunityDiscussions({ search = "", activeCategory = null }: Props) {
   const { threads, categories, loadingThreads } = useDiscussions();
 
   const filtered = threads.filter((t: Thread) => {
