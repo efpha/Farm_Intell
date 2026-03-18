@@ -37,7 +37,6 @@ export const login = async (email: string, password: string) => {
   if (error) {
     throw error;
   }
-  startSessionTimer(); // Start session timer on successful login
   return data;
 };
 
@@ -46,8 +45,8 @@ export const signOut = async (): Promise<void> => {
   await supabase.auth.signOut();
 };
 
-//session expire after 1 hour
-export const startSessionTimer = () => {
+//end session after 1 hour
+export const startSessionTimer = (onExpire: () => void) => {
   let timeLeft = 60 * 60; // 1 hour in seconds
 
   const interval = setInterval(() => {
@@ -64,7 +63,10 @@ export const startSessionTimer = () => {
   }, 1000);
 
   setTimeout(async () => {
-    clearInterval(interval); // stop countdown
-    await signOut(); // sign out user after 1 hour
+    clearInterval(interval);
+    await signOut();
+
+    //trigger toast from component
+    onExpire();
   }, 60 * 60 * 1000);
 };
