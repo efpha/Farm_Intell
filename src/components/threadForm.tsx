@@ -21,8 +21,8 @@ export default function ThreadForm({ isOpen, onClose, onThreadCreated }: ThreadF
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { success, error } = useToast(); 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+  const [, setLoadingCategories] = useState(true);
+  const [, setCategoriesError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCategoriesData = async () => {
