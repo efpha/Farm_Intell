@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
       checkLoginStatus();
 
       // Listen for auth changes
-      const { data: listener } = onAuthStateChange((event, session) => {
+      const { data: listener } = onAuthStateChange((session) => {
         setLoggedIn(!!session);
       });
 
