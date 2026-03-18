@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../supabaseClient";
 import { Eye, EyeOff, Leaf, Mail, Lock } from "lucide-react";
 import { useToast } from "../components/toast/toast";
-import { login } from "../lib/authServices";
+import { login, startSessionTimer } from "../lib/authServices";
 import { useLocation, useNavigate } from "react-router-dom";
 
 
@@ -20,6 +19,11 @@ const LoginPage: React.FC = () => {
 
     try {
       await login(email, password);
+
+      // start session timer WITH toast
+      startSessionTimer(() => {
+        success("Logged out", "Session expired");
+      });
 
       const redirectTo = location.state?.from || "/";
       navigate(redirectTo, { replace: true });
