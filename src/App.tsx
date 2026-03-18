@@ -20,7 +20,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/community" element={<Community />} />
-        <Route path="/discussions" element={<CommunityDiscussions />} /> {/* Bora inawork red ni rangi */}
+        <Route path="/discussions" element={<CommunityDiscussions search="" activeCategory={null} />} />
         <Route path="/market-price" element={<MarketPrice />} />
         <Route path="/models" element={<AiModels />} />
         <Route path="/register" element={<RegisterPage />} />
