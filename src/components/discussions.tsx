@@ -27,7 +27,7 @@ export default function CommunityDiscussions({ search, activeCategory }: Props) 
     <div className="space-y-4 lg:col-span-6 lg:h-screen lg:overflow-y-auto themed-scrollbar">
       <div className="mx-auto max-w-3xl px-4 py-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-900">Community Discussions</h2>
+          <h2 className="text-xl font-bold text-emerald-600">Community Discussions</h2>
           {!loadingThreads && (
             <span className="text-sm text-slate-500">
               {filtered.length} post{filtered.length !== 1 ? "s" : ""}

@@ -215,7 +215,7 @@ export default function CommunityForumPage() {
               <button
                 type="button"
                 onClick={() => setActiveCategory(null)}
-                className={`flex-shrink-0 rounded-xl px-3 py-2 text-xs lg:text-sm font-medium transition-colors ${
+                className={`flex-shrink-0 rounded-xl px-3 py-2 text-xs lg:text-sm font-medium transition-colors cursor-pointer ${
                   activeCategory === null
                     ? "bg-emerald-600 text-white"
                     : "bg-white border text-slate-600 hover:bg-slate-50"
@@ -228,7 +228,7 @@ export default function CommunityForumPage() {
                   key={cat.id}
                   type="button"
                   onClick={() => setActiveCategory(activeCategory === cat.id ? null : cat.id)}
-                  className={`flex-shrink-0 rounded-xl px-3 py-2 text-xs lg:text-sm font-medium transition-colors ${
+                  className={`flex-shrink-0 rounded-xl px-3 py-2 text-xs lg:text-sm font-medium transition-colors cursor-pointer ${
                     activeCategory === cat.id
                       ? "bg-emerald-600 text-white"
                       : "bg-white border text-slate-600 hover:bg-slate-50"
@@ -270,8 +270,8 @@ export default function CommunityForumPage() {
         {/* Left Sidebar */}
         <aside className="space-y-6 lg:col-span-3">
           <div className="rounded-2xl border bg-white p-5 shadow-sm">
-            <h3 className="mb-4 flex items-center gap-2 text-base font-semibold">
-              <Compass className="h-5 w-5 text-blue-600" />
+            <h3 className="mb-4 flex items-center gap-2 text-emerald-600 text-base font-bold">
+              <Compass className="h-5 w-5" />
               Navigation
             </h3>
             <div className="flex flex-col gap-3">
@@ -288,7 +288,6 @@ export default function CommunityForumPage() {
                 My Replies
               </a>
 
-              {/* ──Todo: Auth-gated Create Post button ── */}
               <button
                 type="button"
                 onClick={handleCreatePost}
