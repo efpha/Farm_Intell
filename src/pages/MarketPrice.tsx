@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, JSX } from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -12,9 +12,33 @@ import {
   Filter,
 } from "lucide-react";
 
-const CATEGORIES = ["All", "Grains", "Vegetables", "Fruits", "Livestock", "Dairy"];
+type Category = "All" | "Grains" | "Vegetables" | "Fruits" | "Livestock" | "Dairy";
+type TrendDirection = "up" | "down" | "flat";
 
-const PRODUCTS = [
+interface Product {
+  id: number;
+  name: string;
+  category: Exclude<Category, "All">;
+  unit: string;
+  price: number;
+  prev: number;
+  market: string;
+  updated: string;
+  icon: string;
+}
+
+interface TrendBadgeProps {
+  price: number;
+  prev: number;
+}
+
+interface CategoryIconProps {
+  name: string;
+}
+
+const CATEGORIES: Category[] = ["All", "Grains", "Vegetables", "Fruits", "Livestock", "Dairy"];
+
+const PRODUCTS: Product[] = [
   // Grains
   { id: 1, name: "Maize (White)", category: "Grains", unit: "90kg bag", price: 3200, prev: 3000, market: "Wakulima Market", updated: "2h ago", icon: "🌽" },
   { id: 2, name: "Wheat", category: "Grains", unit: "90kg bag", price: 4800, prev: 4900, market: "Eldoret Grain Market", updated: "3h ago", icon: "🌾" },
@@ -46,13 +70,13 @@ const PRODUCTS = [
   { id: 20, name: "Eggs (tray)", category: "Dairy", unit: "per tray (30 eggs)", price: 480, prev: 510, market: "Ruiru Market", updated: "3h ago", icon: "🥚" },
 ];
 
-function getTrend(price, prev) {
+function getTrend(price: number, prev: number): TrendDirection {
   if (price > prev) return "up";
   if (price < prev) return "down";
   return "flat";
 }
 
-function TrendBadge({ price, prev }) {
+function TrendBadge({ price, prev }: TrendBadgeProps) {
   const trend = getTrend(price, prev);
   const pct = prev !== 0 ? Math.abs(((price - prev) / prev) * 100).toFixed(1) : "0.0";
 
@@ -73,15 +97,19 @@ function TrendBadge({ price, prev }) {
   );
 }
 
-function CategoryIcon({ name }) {
-  const map = { Grains: <Wheat className="h-4 w-4" />, Vegetables: <Leaf className="h-4 w-4" />, Fruits: <ShoppingBasket className="h-4 w-4" /> };
-  return map[name] || <ShoppingBasket className="h-4 w-4" />;
+function CategoryIcon({ name }: CategoryIconProps) {
+  const map: Record<string, JSX.Element> = {
+    Grains: <Wheat className="h-4 w-4" />,
+    Vegetables: <Leaf className="h-4 w-4" />,
+    Fruits: <ShoppingBasket className="h-4 w-4" />,
+  };
+  return map[name] ?? <ShoppingBasket className="h-4 w-4" />;
 }
 
 export default function MarketPrice() {
-  const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [lastRefreshed] = useState(() => new Date().toLocaleTimeString());
+  const [search, setSearch] = useState<string>("");
+  const [activeCategory, setActiveCategory] = useState<Category>("All");
+  const [lastRefreshed] = useState<string>(() => new Date().toLocaleTimeString());
 
   const stats = useMemo(() => {
     const rising = PRODUCTS.filter(p => getTrend(p.price, p.prev) === "up").length;
@@ -90,18 +118,19 @@ export default function MarketPrice() {
     return { rising, falling, stable };
   }, []);
 
-  const filtered = useMemo(() => {
+  const filtered = useMemo<Product[]>(() => {
     return PRODUCTS.filter(p => {
       const matchCat = activeCategory === "All" || p.category === activeCategory;
-      const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.market.toLowerCase().includes(search.toLowerCase());
+      const matchSearch =
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.market.toLowerCase().includes(search.toLowerCase());
       return matchCat && matchSearch;
     });
   }, [search, activeCategory]);
 
-  // Group by category for display
-  const grouped = useMemo(() => {
+  const grouped = useMemo<Record<string, Product[]>>(() => {
     if (activeCategory !== "All") return { [activeCategory]: filtered };
-    return filtered.reduce((acc, p) => {
+    return filtered.reduce<Record<string, Product[]>>((acc, p) => {
       if (!acc[p.category]) acc[p.category] = [];
       acc[p.category].push(p);
       return acc;
@@ -115,9 +144,7 @@ export default function MarketPrice() {
         <div className="mx-auto max-w-7xl px-4 py-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">
-                AgriMarket Prices
-              </h1>
+              <h1 className="text-2xl font-bold text-slate-900">AgriMarket Prices</h1>
               <p className="mt-0.5 text-sm text-slate-500">
                 Live commodity prices from major markets across Kenya
               </p>
@@ -184,12 +211,14 @@ export default function MarketPrice() {
         </div>
 
         {/* Price Tables */}
-        {Object.entries(grouped).map(([category, items]) => (
+        {Object.entries(grouped).map(([category, items]: [string, Product[]]) => (
           <section key={category}>
             <h2 className="mb-3 flex items-center gap-2 text-base font-semibold text-slate-700">
               <CategoryIcon name={category} />
               {category}
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">{items.length}</span>
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
+                {items.length}
+              </span>
             </h2>
             <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
               {/* Table Header */}
@@ -203,7 +232,7 @@ export default function MarketPrice() {
 
               {/* Rows */}
               <div className="divide-y">
-                {items.map(product => (
+                {items.map((product: Product) => (
                   <div
                     key={product.id}
                     className="grid grid-cols-12 gap-2 items-center px-5 py-3.5 text-sm hover:bg-slate-50 transition-colors"
