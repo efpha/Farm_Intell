@@ -127,8 +127,8 @@ export default function CommunityForumPage() {
   const [isAuthPromptOpen, setIsAuthPromptOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
-  const [threads, setThreads] = useState<Thread[]>([]);
-  const [loadingThreads, setLoadingThreads] = useState(true);
+  const [, setThreads] = useState<Thread[]>([]);
+  const [, setLoadingThreads] = useState(true);
   const filterScrollRef = useRef<HTMLDivElement>(null);
 
   const { error } = useToast();
