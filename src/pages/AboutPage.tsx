@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Leaf, CloudRain, Info, Wheat, FlaskConical, CheckCircle2, Cpu } from "lucide-react";
+import { Leaf, CloudRain, Info, CheckCircle2, Cpu } from "lucide-react";
 
 const DISEASE_DATA = [
   {
