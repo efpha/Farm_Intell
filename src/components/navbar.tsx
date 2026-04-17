@@ -66,11 +66,11 @@ const Navbar: React.FC = () => {
           <nav className="hidden md:flex ml-auto mr-auto gap-8">
             {[
               { label: "Home", path: "/" },
-              { label: "AI Models", path: "/models" },
+              { label: "Disease Detection", path: "/detect" },
               { label: "Market Prices", path: "/market-price" },
-              { label: "Irrigation", path: "/irrigation" },
               { label: "Community", path: "/community" },
-              { label: "About", path: "/about" },
+              { label: "Model Overview", path: "/model" },
+              // { label: "About", path: "/about" },
             ].map((item) => (
               <span
                 key={item.path}
@@ -151,11 +151,11 @@ const Navbar: React.FC = () => {
         <div className="flex flex-col p-4 space-y-2">
           {[
             { label: "Home", path: "/" },
-            { label: "AI Models", path: "/models" },
+            { label: "Model Overview", path: "/model" },
             { label: "Market Prices", path: "/market-price" },
-            { label: "Irrigation", path: "/irrigation" },
+            { label: "Disease Detection", path: "/detect" },
             { label: "Community", path: "/community" },
-            { label: "About", path: "/about" },
+            // { label: "About", path: "/about" },
           ].map((item) => (
             <button
               key={item.path}
