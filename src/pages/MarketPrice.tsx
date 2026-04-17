@@ -1,132 +1,235 @@
-import { useState, useMemo, JSX } from "react";
+import { useState, useMemo, useEffect, JSX, useRef, Fragment } from "react";
+import { createClient } from "@supabase/supabase-js";
 import {
-  TrendingUp,
-  TrendingDown,
-  Minus,
   Search,
   RefreshCw,
   MapPin,
   ShoppingBasket,
   Wheat,
   Leaf,
+  Loader2,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
   Filter,
 } from "lucide-react";
 
-type Category = "All" | "Grains" | "Vegetables" | "Fruits" | "Livestock" | "Dairy";
-type TrendDirection = "up" | "down" | "flat";
+// ─── Supabase ──────────────────────────────────────────────────────────────────
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
+
+// ─── Types ─────────────────────────────────────────────────────────────────────
+type Category = "All" | string;
+
+interface RawRow {
+  Id: number;
+  Commodity: string | null;
+  Market: string | null;
+  County: string | null;
+  Retail: number | null;
+  Unit: string | null;
+  Date: string | null;
+  Created_at: string | null;
+  Classification: string | null;
+  Grade: string | null;
+  Sex: string | null;
+  Wholesale: number | null;
+  "Supply Volume": number | null;
+}
 
 interface Product {
   id: number;
   name: string;
-  category: Exclude<Category, "All">;
+  category: string;
   unit: string;
-  price: number;
-  prev: number;
+  retail: number | null;
+  wholesale: number | null;
   market: string;
-  updated: string;
+  county: string;
+  date: string | null;
+  grade: string | null;
+  sex: string | null;
+  supplyVolume: number | null;
   icon: string;
 }
 
-interface TrendBadgeProps {
-  price: number;
-  prev: number;
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+function categoryEmoji(cat: string): string {
+  const map: Record<string, string> = {
+    cereals: "🌾", grains: "🌾",
+    vegetables: "🥬", fruits: "🍎",
+    livestock: "🐄", dairy: "🥛",
+    pulses: "🫘", legumes: "🫘",
+    roots: "🥔", tubers: "🥔",
+    fish: "🐟", poultry: "🐔",
+    spices: "🌶️", oilseeds: "🫒",
+  };
+  const key = cat.toLowerCase();
+  for (const k of Object.keys(map)) {
+    if (key.includes(k)) return map[k];
+  }
+  return "";
 }
 
-interface CategoryIconProps {
-  name: string;
+function formatKES(n: number | null): string {
+  if (n === null || n === undefined) return "—";
+  return n.toLocaleString();
 }
 
-const CATEGORIES: Category[] = ["All", "Grains", "Vegetables", "Fruits", "Livestock", "Dairy"];
-
-const PRODUCTS: Product[] = [
-  // Grains
-  { id: 1, name: "Maize (White)", category: "Grains", unit: "90kg bag", price: 3200, prev: 3000, market: "Wakulima Market", updated: "2h ago", icon: "🌽" },
-  { id: 2, name: "Wheat", category: "Grains", unit: "90kg bag", price: 4800, prev: 4900, market: "Eldoret Grain Market", updated: "3h ago", icon: "🌾" },
-  { id: 3, name: "Rice (Pishori)", category: "Grains", unit: "50kg bag", price: 6500, prev: 6500, market: "Mombasa Port Market", updated: "1h ago", icon: "🍚" },
-  { id: 4, name: "Sorghum", category: "Grains", unit: "90kg bag", price: 2800, prev: 2600, market: "Kisumu Market", updated: "5h ago", icon: "🌾" },
-  { id: 5, name: "Millet", category: "Grains", unit: "90kg bag", price: 3100, prev: 3300, market: "Nakuru Market", updated: "4h ago", icon: "🌾" },
-
-  // Vegetables
-  { id: 6, name: "Tomatoes", category: "Vegetables", unit: "per crate", price: 1200, prev: 900, market: "City Park Market", updated: "30m ago", icon: "🍅" },
-  { id: 7, name: "Kale (Sukuma Wiki)", category: "Vegetables", unit: "per 70kg bag", price: 800, prev: 850, market: "Wakulima Market", updated: "1h ago", icon: "🥬" },
-  { id: 8, name: "Onions", category: "Vegetables", unit: "per 50kg bag", price: 3500, prev: 3200, market: "Kongowea Market", updated: "2h ago", icon: "🧅" },
-  { id: 9, name: "Cabbage", category: "Vegetables", unit: "per crate", price: 600, prev: 600, market: "Wakulima Market", updated: "3h ago", icon: "🥦" },
-  { id: 10, name: "Capsicum", category: "Vegetables", unit: "per kg", price: 120, prev: 100, market: "City Park Market", updated: "1h ago", icon: "🫑" },
-
-  // Fruits
-  { id: 11, name: "Avocado (Hass)", category: "Fruits", unit: "per crate (60pcs)", price: 900, prev: 1100, market: "Limuru Market", updated: "2h ago", icon: "🥑" },
-  { id: 12, name: "Mango (Apple)", category: "Fruits", unit: "per crate", price: 1500, prev: 1400, market: "Kibera Market", updated: "4h ago", icon: "🥭" },
-  { id: 13, name: "Banana (Cavendish)", category: "Fruits", unit: "per bunch", price: 350, prev: 350, market: "Kisii Market", updated: "1h ago", icon: "🍌" },
-  { id: 14, name: "Watermelon", category: "Fruits", unit: "per kg", price: 25, prev: 20, market: "Yatta Market", updated: "6h ago", icon: "🍉" },
-
-  // Livestock
-  { id: 15, name: "Beef Cattle (grade)", category: "Livestock", unit: "per head", price: 85000, prev: 82000, market: "Dagoretti Slaughterhouse", updated: "1d ago", icon: "🐄" },
-  { id: 16, name: "Goat (local)", category: "Livestock", unit: "per head", price: 8500, prev: 9000, market: "Kamuthe Market", updated: "1d ago", icon: "🐐" },
-  { id: 17, name: "Chicken (broiler)", category: "Livestock", unit: "per kg live weight", price: 380, prev: 360, market: "Nairobi Poultry Market", updated: "3h ago", icon: "🐔" },
-
-  // Dairy
-  { id: 18, name: "Fresh Milk", category: "Dairy", unit: "per litre", price: 55, prev: 50, market: "Kinangop Dairy", updated: "1h ago", icon: "🥛" },
-  { id: 19, name: "Butter", category: "Dairy", unit: "per kg", price: 800, prev: 800, market: "Naivasha Market", updated: "2h ago", icon: "🧈" },
-  { id: 20, name: "Eggs (tray)", category: "Dairy", unit: "per tray (30 eggs)", price: 480, prev: 510, market: "Ruiru Market", updated: "3h ago", icon: "🥚" },
-];
-
-function getTrend(price: number, prev: number): TrendDirection {
-  if (price > prev) return "up";
-  if (price < prev) return "down";
-  return "flat";
+function formatDate(d: string | null): string {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("en-KE", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
-function TrendBadge({ price, prev }: TrendBadgeProps) {
-  const trend = getTrend(price, prev);
-  const pct = prev !== 0 ? Math.abs(((price - prev) / prev) * 100).toFixed(1) : "0.0";
-
-  if (trend === "up") return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
-      <TrendingUp className="h-3 w-3" />+{pct}%
-    </span>
-  );
-  if (trend === "down") return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-600">
-      <TrendingDown className="h-3 w-3" />-{pct}%
-    </span>
-  );
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
-      <Minus className="h-3 w-3" />0%
-    </span>
-  );
-}
-
-function CategoryIcon({ name }: CategoryIconProps) {
+function CategoryIcon({ name }: { name: string }): JSX.Element {
   const map: Record<string, JSX.Element> = {
     Grains: <Wheat className="h-4 w-4" />,
+    Cereals: <Wheat className="h-4 w-4" />,
     Vegetables: <Leaf className="h-4 w-4" />,
     Fruits: <ShoppingBasket className="h-4 w-4" />,
   };
   return map[name] ?? <ShoppingBasket className="h-4 w-4" />;
 }
 
+// ─── Main Component ────────────────────────────────────────────────────────────
 export default function MarketPrice() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>("");
-  const [activeCategory, setActiveCategory] = useState<Category>("All");
-  const [lastRefreshed] = useState<string>(() => new Date().toLocaleTimeString());
 
-  const stats = useMemo(() => {
-    const rising = PRODUCTS.filter(p => getTrend(p.price, p.prev) === "up").length;
-    const falling = PRODUCTS.filter(p => getTrend(p.price, p.prev) === "down").length;
-    const stable = PRODUCTS.filter(p => getTrend(p.price, p.prev) === "flat").length;
-    return { rising, falling, stable };
+  const [activeCategory, setActiveCategory] = useState<Category>("All");
+  const [activeCounty, setActiveCounty] = useState<string>("All");
+  const [activeCommodity, setActiveCommodity] = useState<string>("All");
+
+  const [entriesPerPage, setEntriesPerPage] = useState<number>(50);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const filterScrollRef = useRef<HTMLDivElement>(null);
+  
+  const [commodities, setCommodities] = useState<string[]>(["All"]);
+  const [lastRefreshed, setLastRefreshed] = useState<string>(() =>
+    new Date().toLocaleTimeString()
+  );
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: sbError } = await supabase
+        .from("commodity_prices")
+        .select("*")
+        .order("Date", { ascending: false });
+
+      if (sbError) throw sbError;
+
+      const mapped: Product[] = (data as RawRow[]).map((row) => ({
+        id: row.Id,
+        name: row.Commodity?.trim() ?? "Unknown",
+        category: row.Classification ?? "Other",
+        unit: row.Unit ?? "Kg",
+        retail: row.Retail,
+        wholesale: row.Wholesale,
+        market: row.Market ?? "—",
+        county: row.County ?? "—",
+        date: row.Date,
+        grade: row.Grade,
+        sex: row.Sex,
+        supplyVolume: row["Supply Volume"],
+        icon: categoryEmoji(row.Classification ?? ""),
+      }));
+
+      setProducts(mapped);
+
+      // DISTINCT commodities (cleaned)
+      const { data: commodityData, error: commodityError } = await supabase
+        .from("distinct_commodities")
+        .select("Commodity");
+
+      if (commodityError) throw commodityError;
+
+      const unique = (commodityData || [])
+        .map((c: any) => c.Commodity?.trim())
+        .filter(Boolean)
+        .sort((a: string, b: string) => a.localeCompare(b));
+
+      setCommodities(["All", ...unique]);
+
+      setCommodities(["All", ...unique]);
+
+      setLastRefreshed(new Date().toLocaleTimeString());
+    } catch (e: any) {
+      setError(e.message ?? "Failed to fetch data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
-  const filtered = useMemo<Product[]>(() => {
-    return PRODUCTS.filter(p => {
-      const matchCat = activeCategory === "All" || p.category === activeCategory;
-      const matchSearch =
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.market.toLowerCase().includes(search.toLowerCase());
-      return matchCat && matchSearch;
+  const categories = useMemo<string[]>(() => {
+    const cs = Array.from(new Set(products.map((p) => p.category))).sort();
+    return ["All", ...cs];
+  }, [products]);
+
+  const counties = useMemo<string[]>(() => {
+    const cs = Array.from(new Set(products.map((p) => p.county))).sort();
+    return ["All", ...cs];
+  }, [products]);
+
+    const scrollFilters = (direction: "left" | "right") => {
+    filterScrollRef.current?.scrollBy({
+      left: direction === "left" ? -200 : 200,
+      behavior: "smooth",
     });
-  }, [search, activeCategory]);
+  };
+
+  const stats = useMemo(
+    () => ({
+      total: products.length,
+      markets: new Set(products.map((p) => p.market)).size,
+      categories: categories.length - 1,
+      counties: counties.length - 1,
+    }),
+    [products, categories, counties]
+  );
+
+  const filtered = useMemo<Product[]>(() => {
+    return products.filter((p) => {
+      const matchCommodity =
+        activeCommodity === "All" ||
+        p.name.toLowerCase().trim() ===
+          activeCommodity.toLowerCase().trim();
+
+      const matchCounty =
+        activeCounty === "All" || p.county === activeCounty;
+
+      const matchCategory =
+        activeCategory === "All" || p.category === activeCategory;
+
+      const q = search.toLowerCase();
+      const matchSearch =
+        !q ||
+        p.name.toLowerCase().includes(q) ||
+        p.market.toLowerCase().includes(q) ||
+        p.county.toLowerCase().includes(q);
+
+      return (
+        matchCommodity &&
+        matchCounty &&
+        matchCategory &&
+        matchSearch
+      );
+    });
+  }, [search, activeCommodity, activeCounty, activeCategory, products]);
 
   const grouped = useMemo<Record<string, Product[]>>(() => {
     if (activeCategory !== "All") return { [activeCategory]: filtered };
@@ -137,156 +240,219 @@ export default function MarketPrice() {
     }, {});
   }, [filtered, activeCategory]);
 
+  function getPageNumbers(current: number, total: number): (number | "...")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 4) return [1, 2, 3, 4, 5, "...", total];
+  if (current >= total - 3) return [1, "...", total - 4, total - 3, total - 2, total - 1, total];
+  return [1, "...", current - 1, current, current + 1, "...", total];
+}
+
+
+  const paginated = useMemo(() => {
+  const start = (currentPage - 1) * entriesPerPage;
+  return filtered.slice(start, start + entriesPerPage);
+}, [filtered, currentPage, entriesPerPage]);
+
+const totalPages = Math.max(1, Math.ceil(filtered.length / entriesPerPage));
+
+// Reset to page 1 whenever filters change
+useEffect(() => {
+  setCurrentPage(1);
+}, [search, activeCommodity, activeCounty, activeCategory, entriesPerPage]);
+
   return (
     <div className="min-h-screen bg-white text-slate-900">
-      {/* Header */}
       <header className="border-b bg-white shadow-sm">
-        <div className="mx-auto max-w-7xl px-4 py-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">AgriMarket Prices</h1>
-              <p className="mt-0.5 text-sm text-slate-500">
-                Live commodity prices from major markets across Kenya
-              </p>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <RefreshCw className="h-3.5 w-3.5" />
-              Last updated: {lastRefreshed}
-            </div>
+        <div className="mx-auto max-w-7xl px-4 py-5 flex justify-between items-center">
+          <div className="">
+            <h1 className="text-2xl font-bold text-emerald-700">AgriMarket Prices</h1>
+            <p className="mt-0.5 text-sm text-slate-500">
+              Latest commodity prices from major markets across Kenya
+            </p>
           </div>
+          <button onClick={fetchData} className="text-sm flex gap-1 items-center">
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            {lastRefreshed}
+          </button>
         </div>
       </header>
 
-      <div className="mx-auto max-w-7xl px-4 py-6 space-y-6">
+      <div className="max-w-7xl mx-auto my-6 px-4 space-y-12"> 
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          
+    {/* ── Toolbar: Product select + Entries per page ── */}
+    <div className="flex flex-wrap items-end gap-4">
+      {/* Product dropdown */}
+      <div className="flex flex-col gap-1">
+        <label className="text-xs text-slate-500">Product</label>
+        <select
+          value={activeCommodity}
+          onChange={(e) => setActiveCommodity(e.target.value)}
+          className="rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none focus:ring-2 focus:ring-emerald-500 min-w-[180px]"
+        >
+          {commodities.map((c) => (
+            <option key={c} value={c}>{c === "All" ? "Select Product" : c}</option>
+          ))}
+        </select>
+      </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div className="rounded-2xl border bg-white p-4 shadow-sm">
-            <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Products</div>
-            <div className="mt-1 text-3xl font-bold text-slate-800">{PRODUCTS.length}</div>
-          </div>
-          <div className="rounded-2xl border bg-white p-4 shadow-sm">
-            <div className="text-xs font-medium text-emerald-600 uppercase tracking-wide">Price Rising</div>
-            <div className="mt-1 text-3xl font-bold text-emerald-600">{stats.rising}</div>
-          </div>
-          <div className="rounded-2xl border bg-white p-4 shadow-sm">
-            <div className="text-xs font-medium text-rose-500 uppercase tracking-wide">Price Falling</div>
-            <div className="mt-1 text-3xl font-bold text-rose-500">{stats.falling}</div>
-          </div>
-          <div className="rounded-2xl border bg-white p-4 shadow-sm">
-            <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Stable</div>
-            <div className="mt-1 text-3xl font-bold text-slate-400">{stats.stable}</div>
-          </div>
-        </div>
+      {/* Entries per page dropdown */}
+      <div className="flex flex-col gap-1">
+        <label className="text-xs text-slate-500">Entries:</label>
+        <select
+          value={entriesPerPage}
+          onChange={(e) => setEntriesPerPage(Number(e.target.value))}
+          className="rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none focus:ring-2 focus:ring-emerald-500 w-28"
+        >
+          {[5, 10, 25, 50, 100].map((n) => (
+            <option key={n} value={n}>{n}</option>
+          ))}
+        </select>
+      </div>
 
-        {/* Search & Filters */}
-        <div className="flex flex-col gap-3 rounded-2xl border bg-white p-4 shadow-sm sm:flex-row sm:items-center">
-          <div className="flex flex-1 items-center gap-2 rounded-xl border bg-slate-50 px-3 py-2">
-            <Search className="h-4 w-4 text-slate-400 flex-shrink-0" />
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search product or market..."
-              className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-slate-400 flex-shrink-0" />
-            <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {CATEGORIES.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`flex-shrink-0 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors ${
-                    activeCategory === cat
-                      ? "bg-emerald-600 text-white"
-                      : "border text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+      {/* Result count */}
+      <p className="mb-2 text-xs text-slate-400">
+        {filtered.length.toLocaleString()} result{filtered.length !== 1 ? "s" : ""}
+      </p>
+    </div>
 
-        {/* Price Tables */}
-        {Object.entries(grouped).map(([category, items]: [string, Product[]]) => (
-          <section key={category}>
-            <h2 className="mb-3 flex items-center gap-2 text-base font-semibold text-slate-700">
-              <CategoryIcon name={category} />
-              {category}
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
-                {items.length}
-              </span>
-            </h2>
-            <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
-              {/* Table Header */}
-              <div className="grid grid-cols-12 gap-2 border-b bg-slate-50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                <div className="col-span-4">Product</div>
-                <div className="col-span-2 text-right">Price (KES)</div>
-                <div className="col-span-2 text-right hidden sm:block">Prev Price</div>
-                <div className="col-span-2 text-center">Change</div>
-                <div className="col-span-2 hidden md:block text-right">Updated</div>
-              </div>
+    {/* ── Pagination (top) ── */}
+    {totalPages > 1 && (
+      <div className="flex items-center gap-1">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="rounded-lg border px-3 py-1.5 text-xs text-slate-500 hover:bg-slate-50 disabled:opacity-30"
+          >
+            ‹ Prev
+          </button>
 
-              {/* Rows */}
-              <div className="divide-y">
-                {items.map((product: Product) => (
-                  <div
-                    key={product.id}
-                    className="grid grid-cols-12 gap-2 items-center px-5 py-3.5 text-sm hover:bg-slate-50 transition-colors"
-                  >
-                    {/* Product Name */}
-                    <div className="col-span-4 flex items-center gap-2.5">
-                      <span className="text-lg leading-none">{product.icon}</span>
-                      <div className="min-w-0">
-                        <div className="font-medium text-slate-800 truncate">{product.name}</div>
-                        <div className="text-xs text-slate-400 flex items-center gap-1 truncate">
-                          <MapPin className="h-2.5 w-2.5 flex-shrink-0" />
-                          {product.market}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Current Price */}
-                    <div className="col-span-2 text-right font-semibold text-slate-900">
-                      {product.price.toLocaleString()}
-                      <div className="text-xs font-normal text-slate-400">{product.unit}</div>
-                    </div>
-
-                    {/* Prev Price */}
-                    <div className="col-span-2 text-right text-slate-400 hidden sm:block">
-                      {product.prev.toLocaleString()}
-                    </div>
-
-                    {/* Change */}
-                    <div className="col-span-2 flex justify-center">
-                      <TrendBadge price={product.price} prev={product.prev} />
-                    </div>
-
-                    {/* Updated */}
-                    <div className="col-span-2 text-right text-xs text-slate-400 hidden md:block">
-                      {product.updated}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        ))}
-
-        {filtered.length === 0 && (
-          <div className="rounded-2xl border bg-white p-10 shadow-sm text-center">
-            <ShoppingBasket className="mx-auto h-10 w-10 text-slate-300 mb-3" />
-            <p className="text-slate-500 text-sm">No products found matching your search.</p>
-          </div>
+        {getPageNumbers(currentPage, totalPages).map((page, i) =>
+          page === "..." ? (
+            <span key={`ellipsis-${i}`} className="px-2 py-1.5 text-xs text-slate-400">…</span>
+          ) : (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page as number)}
+              className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                currentPage === page
+                  ? "bg-emerald-600 border-emerald-600 text-white"
+                  : "text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              {page}
+            </button>
+          )
         )}
 
-        {/* Footer note */}
-        <p className="text-center text-xs text-slate-400 pb-4">
-          Prices are indicative wholesale rates collected from market reporters. Always confirm with local buyers before transacting.
-        </p>
+            {totalPages > 1 && (
+      <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center gap-1">
+
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="rounded-lg border px-3 py-1.5 text-xs text-slate-500 hover:bg-slate-50 disabled:opacity-30"
+          >
+            Next ›
+          </button>
+        </div>
+      </div>
+    )}
+      </div>
+    )}
+
+            {/* Commodity Button */}
+          </div>
+
+
+{/* Results — table layout */}
+{loading ? (
+  <div className="flex justify-center items-center py-16">
+    <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
+  </div>
+) : error ? (
+  <div className="flex items-center gap-2 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+    <AlertCircle className="h-4 w-4 flex-shrink-0" />
+    {error}
+  </div>
+) : (
+  <div className="space-y-3">
+
+    {/* ── Table ── */}
+    {Object.keys(grouped).length === 0 ? (
+      <div className="py-16 text-center text-sm text-slate-400">
+        No results match your filters.
+      </div>
+    ) : (
+      <div className="overflow-x-hidden border">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="bg-slate-50 text-left text-md font-medium text-emerald-700">
+              <th className="px-4 py-3 whitespace-nowrap">Commodity</th>
+              <th className="px-4 py-3 whitespace-nowrap">Category</th>
+              <th className="px-4 py-3 whitespace-nowrap text-right">Retail (KES)</th>
+              <th className="px-4 py-3 whitespace-nowrap text-right">Wholesale (KES)</th>
+              <th className="px-4 py-3 whitespace-nowrap">Market</th>
+              <th className="px-4 py-3 whitespace-nowrap">County</th>
+              <th className="px-4 py-3 whitespace-nowrap">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* Group paginated rows by category */}
+            {Object.entries(
+              paginated.reduce<Record<string, Product[]>>((acc, p) => {
+                if (!acc[p.category]) acc[p.category] = [];
+                acc[p.category].push(p);
+                return acc;
+              }, {})
+            ).map(([category, items]) => {
+              const maxSupply = Math.max(...items.map((p) => p.supplyVolume ?? 0), 1);
+              return (
+                <Fragment key={category}>
+                  <tr className="border-t bg-slate-50/60">
+                    <td colSpan={11} className="px-4 py-2 text-xs font-medium text-slate-500">
+                      {categoryEmoji(category)} {category}{" "}
+                      <span className="font-normal opacity-60">({items.length})</span>
+                    </td>
+                  </tr>
+                  {items.map((p) => {
+                    const supplyPct = p.supplyVolume
+                      ? Math.round((p.supplyVolume / maxSupply) * 100)
+                      : 0;
+                    return (
+                      <tr key={p.id} className="border-t hover:bg-slate-50 transition-colors">
+                        <td className="px-4 py-3 font-medium text-slate-900 whitespace-nowrap">{p.name}</td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span className="rounded-full border px-2 py-0.5 text-[11px] font-medium text-slate-600">
+                            {p.category}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-right font-medium tabular-nums text-slate-900 whitespace-nowrap">
+                          {formatKES(p.retail)}
+                        </td>
+                        <td className="px-4 py-3 text-right tabular-nums text-slate-500 whitespace-nowrap">
+                          {formatKES(p.wholesale)}
+                        </td>
+                        <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{p.market}</td>
+                        <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{p.county}</td>
+                        <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
+                          {formatDate(p.date)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    )}
+
+    {/* ── Pagination (bottom) ── */}
+  </div>
+)}
       </div>
     </div>
   );
