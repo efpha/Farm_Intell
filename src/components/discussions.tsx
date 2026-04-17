@@ -44,7 +44,7 @@ export default function CommunityDiscussions({ search = "", activeCategory = nul
 
         {!loadingThreads && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border bg-white py-16 shadow-sm">
-            <MessageCircle className="h-8 w-8 text-slate-300" />
+            <MessageCircle className="h-8 w-8 text-emerald-800" />
             <p className="text-sm font-medium text-slate-500">No discussions found</p>
             <p className="text-xs text-slate-400">Try a different search or category</p>
           </div>
