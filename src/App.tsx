@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/navbar";
 import HomePage from "./pages/HomePage";
 import DetectPage from "./pages/DetectPage";
-import IrrigationPage from "./pages/IrrigationPage";
+// import IrrigationPage from "./pages/IrrigationPage";
 import AboutPage from "./pages/AboutPage";
 import RegisterPage from "./pages/register";
 import LoginPage from "./pages/login";
@@ -11,6 +11,7 @@ import Community from "./pages/community"
 import Footer from "./components/footer"
 import CommunityDiscussions from "@/components/discussions";
 import AiModels from "./pages/AiModels";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   return (
@@ -22,11 +23,12 @@ function App() {
         <Route path="/community" element={<Community />} />
         <Route path="/discussions" element={<CommunityDiscussions search="" activeCategory={null} />} />
         <Route path="/market-price" element={<MarketPrice />} />
-        <Route path="/models" element={<AiModels />} />
+        <Route path="/model" element={<AiModels />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/detect" element={<DetectPage />} />
-        <Route path="/irrigation" element={<IrrigationPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        {/* <Route path="/irrigation" element={<IrrigationPage />} /> */}
       </Routes>
       <Footer/>
     </Router>
