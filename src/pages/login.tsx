@@ -25,7 +25,7 @@ const LoginPage: React.FC = () => {
         success("Logged out", "Session expired");
       });
 
-      const redirectTo = location.state?.from || "/";
+      const redirectTo = location.state?.from || "/community";
       navigate(redirectTo, { replace: true });
 
       success("Welcome back!", "You've logged in successfully.");
@@ -61,7 +61,7 @@ const LoginPage: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 text-sm text-black placeholder-gray-500 shadow-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
+                className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 text-sm text-black placeholder-gray-500 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
               />
             </div>
 
@@ -73,7 +73,7 @@ const LoginPage: React.FC = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 pr-12 text-sm text-black placeholder-gray-500 shadow-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
+                className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 pr-12 text-sm text-black placeholder-gray-500 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
               />
               <button
                 type="button"
