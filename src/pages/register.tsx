@@ -23,7 +23,7 @@ const handleRegister = async (e: React.FormEvent) => {
     return;
   }
 
-  // 1️⃣ Sign up with Supabase Auth
+  // Sign up with Supabase Auth
 const { data: authData, error: authError } = await supabase.auth.signUp({
   email,
   password,
@@ -41,7 +41,7 @@ if (authError || !authData.user) {
   return;
 }
 
-// ✅ No profile insert needed — trigger handles it
+// No profile insert needed — trigger handles it
 success("Account created!", "Check your email to verify your account.");
 };
 
@@ -51,8 +51,7 @@ success("Account created!", "Check your email to verify your account.");
       style={{ backgroundImage: "url('/homebg.jpg')" }}
     >
       <div className="min-h-screen w-full bg-black/40 flex items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-2xl border border-white/20 bg-white/95 p-8 shadow-2xl backdrop-blur-md">
-
+        <div className="w-full md:w-3/4 rounded-lg bg-white/95 p-8 backdrop-blur-md mx-auto">
           {/* Brand */}
           <div className="text-center mb-6">
             <Link to="/" className="flex flex-col items-center gap-1">
@@ -63,115 +62,121 @@ success("Account created!", "Check your email to verify your account.");
           </div>
 
           {/* Form */}
-          <form onSubmit={handleRegister} className="space-y-5">
+          <form onSubmit={handleRegister}>
+            <div className="flex flex-wrap justify-center items-center gap-6">
+              <div className="space-y-5">
+                {/* First Name */}
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type="text"
+                    placeholder="First name"
+                    required
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 text-sm text-black placeholder-gray-500 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
+                  />
+                </div>
 
-            {/* First Name */}
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
-              <input
-                type="text"
-                placeholder="First name"
-                required
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 text-sm text-black placeholder-gray-500 shadow-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
-              />
+                {/* Last Name */}
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type="text"
+                    placeholder="Last name"
+                    required
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 text-sm text-black placeholder-gray-500 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
+                  />
+                </div>
+
+                {/* Phone Number */}
+                <div className="relative">
+                  <Phone className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type="tel"
+                    placeholder="Phone number"
+                    required
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 text-sm text-black placeholder-gray-500 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-5">
+                {/* Email */}
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type="email"
+                    placeholder="Email address"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 text-sm text-black placeholder-gray-500 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
+                  />
+                </div>
+
+                {/* Password */}
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 pr-12 text-sm text-black placeholder-gray-500 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg hover:bg-gray-100"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5 text-emerald-600" /> : <Eye className="h-5 w-5 text-emerald-600" />}
+                  </button>
+                </div>
+
+                {/* Confirm Password */}
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 pr-12 text-sm text-black placeholder-gray-500 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg hover:bg-gray-100"
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-5 w-5 text-emerald-600" /> : <Eye className="h-5 w-5 text-emerald-600" />}
+                  </button>
+                </div>
+              </div>
             </div>
 
-            {/* Last Name */}
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Last name"
-                required
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 text-sm text-black placeholder-gray-500 shadow-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
-              />
-            </div>
-
-            {/* Phone Number */}
-            <div className="relative">
-              <Phone className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
-              <input
-                type="tel"
-                placeholder="Phone number"
-                required
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 text-sm text-black placeholder-gray-500 shadow-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
-              />
-            </div>
-
-            {/* Email */}
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
-              <input
-                type="email"
-                placeholder="Email address"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 text-sm text-black placeholder-gray-500 shadow-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
-              />
-            </div>
-
-            {/* Password */}
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 pr-12 text-sm text-black placeholder-gray-500 shadow-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
-              />
+            <div className="flex flex-col items-center text-center space-y-4 mt-6">
               <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg hover:bg-gray-100"
+                type="submit"
+                className="w-full md:w-3/4 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-700 py-3 text-sm font-semibold text-white hover:from-emerald-600 hover:to-emerald-800 transition cursor-pointer"
               >
-                {showPassword ? <EyeOff className="h-5 w-5 text-emerald-600" /> : <Eye className="h-5 w-5 text-emerald-600" />}
+                Register
               </button>
+
+              {/* Login Link */}
+              <p className="text-center text-sm text-gray-700">
+                Already have an account?{" "}
+                <Link to="/login" className="font-semibold text-emerald-700 hover:text-emerald-800">
+                  Login
+                </Link>
+              </p>
             </div>
-
-            {/* Confirm Password */}
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="Confirm password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full rounded-xl border border-gray-300 bg-transparent py-3 px-12 pr-12 text-sm text-black placeholder-gray-500 shadow-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg hover:bg-gray-100"
-              >
-                {showConfirmPassword ? <EyeOff className="h-5 w-5 text-emerald-600" /> : <Eye className="h-5 w-5 text-emerald-600" />}
-              </button>
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              className="w-full rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-700 py-3 text-sm font-semibold text-white shadow-md hover:from-emerald-600 hover:to-emerald-800 transition cursor-pointer"
-            >
-              Register
-            </button>
-
-            {/* Login Link */}
-            <p className="text-center text-sm text-gray-700">
-              Already have an account?{" "}
-              <Link to="/login" className="font-semibold text-emerald-700 hover:text-emerald-800">
-                Login
-              </Link>
-            </p>
 
           </form>
         </div>
