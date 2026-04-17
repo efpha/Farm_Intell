@@ -6,16 +6,16 @@ const HomePage: React.FC = () => {
   return (
     <div className="min-h-[100vh] flex flex-col">
       <main className="flex-1 bg-[url('/homebg.jpg')] bg-cover bg-center bg-fixed relative">
-        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="absolute inset-0 bg-black/30"></div>
         <section className="w-full py-12 md:py-24 lg:py-32 h-full relative z-10">
           <div className="container px-4 md:px-6 h-full flex flex-col justify-center">
             <div className="flex flex-col items-center justify-center space-y-4 text-center text-white">
               <div className="space-y-2">
                 <h1 className="text-6xl text-white font-bold tracking-tighter sm:text-6xl md:text-8xl">
-                  Leveraging Technology in Agriculture
+                  Smart Agriculture <br/> Powered by AI
                 </h1>
-                <p className="mx-auto max-w-[700px] md:text-2xl">
-                  Advanced tools for modern farming. Detect plant diseases and optimize irrigation with our AI-powered system.
+                <p className="text-white mx-auto max-w-[700px] md:text-2xl">
+                  Leverage machine learning to detect crop diseases in real time
                 </p>
               </div>
               <div className="mx-auto w-full max-w-sm space-y-2">
@@ -28,11 +28,11 @@ const HomePage: React.FC = () => {
                     Disease Detection
                   </button>
                   <button
-                    onClick={() => navigate("/irrigation")}
+                    onClick={() => navigate("/market-price")}
                     className="inline-flex h-12 items-center justify-center rounded-lg bg-emerald-700 to-emerald-700 px-5 text-sm font-semibold text-white shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 cursor-pointer"
                   >
                     <Droplets className="mr-3 h-5 w-5" />
-                    Irrigation Advisor
+                    Market Prices
                   </button>
                 </div>
 
