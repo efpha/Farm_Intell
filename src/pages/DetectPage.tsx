@@ -65,25 +65,24 @@ const DetectPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-100 py-16">
+    <div className="min-h-screen bg-white py-16">
       <div className="mx-auto max-w-6xl px-6">
         
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-left mb-12">
           <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm text-emerald-700">
             <Sparkles className="h-4 w-4" />
             AI Powered Detection
           </div>
-          <h1 className="mt-4 text-3xl md:text-4xl font-bold text-slate-900">
+          <h1 className="mt-4 text-3xl md:text-4xl font-bold text-emerald-700">
             Plant Disease Detection
           </h1>
           <p className="mt-2 text-slate-600">
-            Upload a plant image and let AI identify potential diseases instantly.
+            Upload a plant image and let AI identify crop diseases
           </p>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2">
-
           {/* Upload Section */}
           <Card className="rounded-3xl shadow-lg border-0">
             <CardHeader>
@@ -179,19 +178,6 @@ const DetectPage: React.FC = () => {
                       {result.disease}
                     </h2>
 
-                    {/* Confidence Bar */}
-                    <div className="mt-3">
-                      <div className="flex justify-between text-sm text-slate-600">
-                        <span>Confidence</span>
-                        <span>{result.confidence.toFixed(1)}%</span>
-                      </div>
-                      <div className="mt-1 h-2 w-full rounded-full bg-slate-200">
-                        <div
-                          className="h-2 rounded-full bg-emerald-600 transition-all"
-                          style={{ width: `${result.confidence}%` }}
-                        />
-                      </div>
-                    </div>
                   </div>
 
                   {result.healthy && (
