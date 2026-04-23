@@ -288,7 +288,7 @@ useEffect(() => {
         <select
           value={activeCommodity}
           onChange={(e) => setActiveCommodity(e.target.value)}
-          className="rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none focus:ring-2 focus:ring-emerald-500 min-w-[180px]"
+          className="rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500 min-w-[180px]"
         >
           {commodities.map((c) => (
             <option key={c} value={c}>{c === "All" ? "Select Product" : c}</option>
@@ -302,7 +302,7 @@ useEffect(() => {
         <select
           value={entriesPerPage}
           onChange={(e) => setEntriesPerPage(Number(e.target.value))}
-          className="rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none focus:ring-2 focus:ring-emerald-500 w-28"
+          className="rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500 w-28"
         >
           {[5, 10, 25, 50, 100].map((n) => (
             <option key={n} value={n}>{n}</option>
