@@ -304,7 +304,7 @@ export default function CommunityForumPage() {
 
         {/* Right Widgets */}
         <aside className="space-y-6 lg:col-span-3">
-          <div className="rounded-2xl border bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border bg-white p-5">
             <h3 className="mb-3 flex items-center gap-2 text-base font-semibold">
               <Bot className="h-5 w-5 text-indigo-600" />
               AgriAI Insights
