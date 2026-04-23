@@ -40,6 +40,34 @@ export const login = async (email: string, password: string) => {
   return data;
 };
 
+// signup user
+export const signUp = async (
+  email: string,
+  password: string,
+  firstName: string,
+  lastName: string,
+  phoneNumber: string
+) => {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        first_name: firstName,
+        last_name: lastName,
+        phone_no: phoneNumber,
+      },
+    },
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};
+
+
 // Sign out the user
 export const signOut = async (): Promise<void> => {
   await supabase.auth.signOut();
