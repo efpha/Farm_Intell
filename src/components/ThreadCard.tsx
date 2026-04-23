@@ -5,9 +5,10 @@ import { timeAgo, displayName } from "../lib/discussionUtils";
 
 type ThreadCardProps = {
   thread: Thread;
+  showTitle?: boolean;
 };
 
-export default function ThreadCard({ thread }: ThreadCardProps) {
+export default function ThreadCard({ thread, showTitle = true  }: ThreadCardProps) {
   const categoryName = thread.Categories?.name ?? "General"; 
   const badgeClass =
     CATEGORY_COLOURS[categoryName] ?? "bg-slate-100 text-slate-600 border-slate-200";
@@ -17,7 +18,7 @@ export default function ThreadCard({ thread }: ThreadCardProps) {
     <div className="rounded-2xl border bg-white p-5 shadow-sm transition-shadow hover:shadow-md cursor-pointer">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h4 className="text-base font-semibold leading-snug">{thread.title}</h4>
+          {showTitle && <h4 className="text-base font-semibold leading-snug">{thread.title}</h4>}
           <p className="mt-1 line-clamp-2 text-sm text-slate-600">{thread.content}</p>
         </div>
         <span className={`flex-shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${badgeClass}`}>

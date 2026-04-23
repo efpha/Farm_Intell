@@ -51,7 +51,7 @@ export default function CommunityDiscussions({ search = "", activeCategory = nul
         )}
 
         {!loadingThreads && filtered.map((thread) => (
-          <ThreadCard key={thread.id} thread={thread} />
+          <ThreadCard key={thread.id} thread={thread} showTitle={false} />
         ))}
       </div>
     </div>
