@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { Eye, EyeOff, Leaf, Mail, Lock, User, Phone } from "lucide-react";
 import { useToast } from "../components/toast/toast";
+import { signUp } from "../lib/authServices";
 
 const RegisterPage: React.FC = () => {
   const [firstName, setFirstName] = useState("");
@@ -15,35 +16,47 @@ const RegisterPage: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { success, error, warning } = useToast();
 
-const handleRegister = async (e: React.FormEvent) => {
-  e.preventDefault();
+  // move logic her from this frontend 
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  if (password !== confirmPassword) {
-    warning("Passwords don't match", "Please make sure both passwords are identical.");
-    return;
-  }
-
-  // Sign up with Supabase Auth
-const { data: authData, error: authError } = await supabase.auth.signUp({
-  email,
-  password,
-  options: {
-    data: {
-      first_name: firstName,
-      last_name: lastName,
-      phone_no: phoneNumber,
+    if (password !== confirmPassword) {
+      warning("Passwords don't match", "Please make sure both passwords are identical.");
+      return;
     }
-  }
-});
 
-if (authError || !authData.user) {
-  error("Registration failed", authError?.message ?? "Unknown error");
-  return;
-}
+    try {
+      const data = await signUp(
+        email,
+        password,
+        firstName,
+        lastName,
+        phoneNumber
+      );
 
-// No profile insert needed — trigger handles it
-success("Account created!", "Check your email to verify your account.");
-};
+      if (!data.user) {
+        error("Registration failed", "User not created");
+        return;
+      }
+      //clear form
+      setFirstName("");
+      setLastName("");
+      setPhoneNumber("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+
+      success("Account created!", "Check your email to verify your account.");
+      
+      // redirect to verification page
+      setTimeout(() => {
+        window.location.href = "/register-redirect";
+      }, 1500);
+
+    } catch (err: any) {
+      error("Registration failed", err.message);
+    }
+  };
 
   return (
     <div
@@ -51,7 +64,7 @@ success("Account created!", "Check your email to verify your account.");
       style={{ backgroundImage: "url('/homebg.jpg')" }}
     >
       <div className="min-h-screen w-full bg-black/40 flex items-center justify-center px-4">
-        <div className="w-full md:w-3/4 rounded-lg bg-white/95 p-8 backdrop-blur-md mx-auto">
+        <div className="w-full md:w-3/4 rounded-lg bg-white p-8 backdrop-blur-md mx-auto">
           {/* Brand */}
           <div className="text-center mb-6">
             <Link to="/" className="flex flex-col items-center gap-1">
