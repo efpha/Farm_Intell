@@ -40,7 +40,7 @@ const LoginPage: React.FC = () => {
       style={{ backgroundImage: "url('/homebg.jpg')" }}
     >
       <div className="min-h-screen w-full bg-black/40 flex items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-2xl border border-white/20 bg-white/95 p-8 shadow-2xl backdrop-blur-md">
+        <div className="w-full max-w-md rounded-2xl border border-white/20 bg-white p-8 shadow-2xl backdrop-blur-md">
 
           {/* Brand */}
           <div className="text-center mb-6">
