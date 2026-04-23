@@ -12,6 +12,7 @@ import Footer from "./components/footer"
 import CommunityDiscussions from "@/components/discussions";
 import AiModels from "./pages/AiModels";
 import ForgotPassword from "./pages/ForgotPassword";
+import RegisterRedirect from "./pages/RegisterRedirect";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/detect" element={<DetectPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/register-redirect" element={<RegisterRedirect />} />
         {/* <Route path="/irrigation" element={<IrrigationPage />} /> */}
       </Routes>
       <Footer/>
