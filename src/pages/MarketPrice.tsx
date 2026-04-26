@@ -1,17 +1,9 @@
-import { useState, useMemo, useEffect, JSX, useRef, Fragment } from "react";
+import { useState, useMemo, useEffect, Fragment } from "react";
 import { createClient } from "@supabase/supabase-js";
 import {
-  Search,
   RefreshCw,
-  MapPin,
-  ShoppingBasket,
-  Wheat,
-  Leaf,
   Loader2,
   AlertCircle,
-  ChevronLeft,
-  ChevronRight,
-  Filter,
 } from "lucide-react";
 
 // ─── Supabase ──────────────────────────────────────────────────────────────────
@@ -36,7 +28,6 @@ interface RawRow {
   Grade: string | null;
   Sex: string | null;
   Wholesale: number | null;
-  "Supply Volume": number | null;
 }
 
 interface Product {
@@ -51,7 +42,6 @@ interface Product {
   date: string | null;
   grade: string | null;
   sex: string | null;
-  supplyVolume: number | null;
   icon: string;
 }
 
@@ -87,15 +77,7 @@ function formatDate(d: string | null): string {
   });
 }
 
-function CategoryIcon({ name }: { name: string }): JSX.Element {
-  const map: Record<string, JSX.Element> = {
-    Grains: <Wheat className="h-4 w-4" />,
-    Cereals: <Wheat className="h-4 w-4" />,
-    Vegetables: <Leaf className="h-4 w-4" />,
-    Fruits: <ShoppingBasket className="h-4 w-4" />,
-  };
-  return map[name] ?? <ShoppingBasket className="h-4 w-4" />;
-}
+
 
 // ─── Main Component ────────────────────────────────────────────────────────────
 export default function MarketPrice() {
@@ -104,15 +86,13 @@ export default function MarketPrice() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>("");
 
-  const [activeCategory, setActiveCategory] = useState<Category>("All");
-  const [activeCounty, setActiveCounty] = useState<string>("All");
+  const activeCategory: Category = "All";
+  const activeCounty: string = "All";
   const [activeCommodity, setActiveCommodity] = useState<string>("All");
 
   const [entriesPerPage, setEntriesPerPage] = useState<number>(50);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  const filterScrollRef = useRef<HTMLDivElement>(null);
-  
   const [commodities, setCommodities] = useState<string[]>(["All"]);
   const [lastRefreshed, setLastRefreshed] = useState<string>(() =>
     new Date().toLocaleTimeString()
@@ -141,7 +121,6 @@ export default function MarketPrice() {
         date: row.Date,
         grade: row.Grade,
         sex: row.Sex,
-        supplyVolume: row["Supply Volume"],
         icon: categoryEmoji(row.Classification ?? ""),
       }));
 
@@ -174,33 +153,6 @@ export default function MarketPrice() {
   useEffect(() => {
     fetchData();
   }, []);
-
-  const categories = useMemo<string[]>(() => {
-    const cs = Array.from(new Set(products.map((p) => p.category))).sort();
-    return ["All", ...cs];
-  }, [products]);
-
-  const counties = useMemo<string[]>(() => {
-    const cs = Array.from(new Set(products.map((p) => p.county))).sort();
-    return ["All", ...cs];
-  }, [products]);
-
-    const scrollFilters = (direction: "left" | "right") => {
-    filterScrollRef.current?.scrollBy({
-      left: direction === "left" ? -200 : 200,
-      behavior: "smooth",
-    });
-  };
-
-  const stats = useMemo(
-    () => ({
-      total: products.length,
-      markets: new Set(products.map((p) => p.market)).size,
-      categories: categories.length - 1,
-      counties: counties.length - 1,
-    }),
-    [products, categories, counties]
-  );
 
   const filtered = useMemo<Product[]>(() => {
     return products.filter((p) => {
@@ -280,15 +232,27 @@ useEffect(() => {
       <div className="max-w-7xl mx-auto my-6 px-4 space-y-12"> 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           
-    {/* ── Toolbar: Product select + Entries per page ── */}
+    {/* ── Toolbar: Search + Product select + Entries per page ── */}
     <div className="flex flex-wrap items-end gap-4">
+      {/* Search input */}
+      <div className="flex flex-col gap-1">
+        <label className="text-xs text-slate-500">Search</label>
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search product,market, or county"
+          className="rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:ring-1 focus:ring-gray-300 min-w-[200px]"
+        />
+      </div>
+
       {/* Product dropdown */}
       <div className="flex flex-col gap-1">
         <label className="text-xs text-slate-500">Product</label>
         <select
           value={activeCommodity}
           onChange={(e) => setActiveCommodity(e.target.value)}
-          className="rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500 min-w-[180px]"
+          className="rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:ring-1 focus:ring-gray-300 min-w-[180px]"
         >
           {commodities.map((c) => (
             <option key={c} value={c}>{c === "All" ? "Select Product" : c}</option>
@@ -302,7 +266,7 @@ useEffect(() => {
         <select
           value={entriesPerPage}
           onChange={(e) => setEntriesPerPage(Number(e.target.value))}
-          className="rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500 w-28"
+          className="rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:ring-1 focus:ring-gray-300 w-28"
         >
           {[5, 10, 25, 50, 100].map((n) => (
             <option key={n} value={n}>{n}</option>
@@ -406,45 +370,37 @@ useEffect(() => {
                 acc[p.category].push(p);
                 return acc;
               }, {})
-            ).map(([category, items]) => {
-              const maxSupply = Math.max(...items.map((p) => p.supplyVolume ?? 0), 1);
-              return (
-                <Fragment key={category}>
-                  <tr className="border-t bg-slate-50/60">
-                    <td colSpan={11} className="px-4 py-2 text-xs font-medium text-slate-500">
-                      {categoryEmoji(category)} {category}{" "}
-                      <span className="font-normal opacity-60">({items.length})</span>
+            ).map(([category, items]) => (
+              <Fragment key={category}>
+                <tr className="border-t bg-slate-50/60">
+                  <td colSpan={11} className="px-4 py-2 text-xs font-medium text-slate-500">
+                    {categoryEmoji(category)} {category}{" "}
+                    <span className="font-normal opacity-60">({items.length})</span>
+                  </td>
+                </tr>
+                {items.map((p) => (
+                  <tr key={p.id} className="border-t hover:bg-slate-50 transition-colors">
+                    <td className="px-4 py-3 font-medium text-slate-900 whitespace-nowrap">{p.name}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className="rounded-full border px-2 py-0.5 text-[11px] font-medium text-slate-600">
+                        {p.category}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right font-medium tabular-nums text-slate-900 whitespace-nowrap">
+                      {formatKES(p.retail)}
+                    </td>
+                    <td className="px-4 py-3 text-right tabular-nums text-slate-500 whitespace-nowrap">
+                      {formatKES(p.wholesale)}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{p.market}</td>
+                    <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{p.county}</td>
+                    <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
+                      {formatDate(p.date)}
                     </td>
                   </tr>
-                  {items.map((p) => {
-                    const supplyPct = p.supplyVolume
-                      ? Math.round((p.supplyVolume / maxSupply) * 100)
-                      : 0;
-                    return (
-                      <tr key={p.id} className="border-t hover:bg-slate-50 transition-colors">
-                        <td className="px-4 py-3 font-medium text-slate-900 whitespace-nowrap">{p.name}</td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="rounded-full border px-2 py-0.5 text-[11px] font-medium text-slate-600">
-                            {p.category}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-right font-medium tabular-nums text-slate-900 whitespace-nowrap">
-                          {formatKES(p.retail)}
-                        </td>
-                        <td className="px-4 py-3 text-right tabular-nums text-slate-500 whitespace-nowrap">
-                          {formatKES(p.wholesale)}
-                        </td>
-                        <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{p.market}</td>
-                        <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{p.county}</td>
-                        <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
-                          {formatDate(p.date)}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </Fragment>
-              );
-            })}
+                ))}
+              </Fragment>
+            ))}
           </tbody>
         </table>
       </div>
