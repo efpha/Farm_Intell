@@ -7,16 +7,21 @@ const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { error } = useToast();
+  const { success, error } = useToast();
 
+  // TODO
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Replace with your actual forgot password service call
-      // await sendPasswordResetEmail(email);
-      await new Promise((res) => setTimeout(res, 1000)); // simulated delay
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`, // adjust to your reset password route
+      });
+
+      if (resetError) throw resetError;
+
       setSubmitted(true);
+      success("Email sent", "Check your inbox for the reset link.");
     } catch (err: any) {
       error("Request failed", err.message);
     } finally {
@@ -30,7 +35,7 @@ const ForgotPasswordPage: React.FC = () => {
       style={{ backgroundImage: "url('/homebg.jpg')" }}
     >
       <div className="min-h-screen w-full bg-black/40 flex items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-2xl border border-white/20 bg-white/95 p-8 shadow-2xl backdrop-blur-md">
+        <div className="w-full max-w-md rounded-2xl border border-white/20 bg-white p-8 shadow-2xl backdrop-blur-md">
 
           {/* Brand */}
           <div className="text-center mb-6">
