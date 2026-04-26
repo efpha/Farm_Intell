@@ -14,11 +14,11 @@ const ForgotPasswordPage: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`, // adjust to your reset password route
-      });
+      // const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      //   redirectTo: `${window.location.origin}/reset-password`, // adjust to your reset password route
+      // });
 
-      if (resetError) throw resetError;
+      // if (resetError) throw resetError;
 
       setSubmitted(true);
       success("Email sent", "Check your inbox for the reset link.");
