@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Leaf, Mail, RefreshCw, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Mail, RefreshCw, ArrowLeft, CheckCircle2 } from "lucide-react";
 
 const RegisterRedirect: React.FC = () => {
   const [resent, setResent] = useState(false);

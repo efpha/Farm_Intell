@@ -121,9 +121,6 @@ export default function ThreadForm({
 
   if (!isOpen) return null;
 
-  const selectedCategoryName =
-    categories.find((c) => c.id === threadCategory)?.name ?? "Select category";
-
   return (
     <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40 p-4">
       <div

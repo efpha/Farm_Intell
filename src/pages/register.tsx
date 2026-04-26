@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../supabaseClient";
 import { Eye, EyeOff, Leaf, Mail, Lock, User, Phone } from "lucide-react";
 import { useToast } from "../components/toast/toast";
 import { signUp } from "../lib/authServices";
