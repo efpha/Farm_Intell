@@ -2,7 +2,7 @@
 import { supabase } from "../supabaseClient";
 
 // Create a thread
-export const createThread = async (title: string, content: string, category_id: number) => {
+export const createThread = async (title: string, content: string, category_id: number, mediaUrls: string[] = []) => {
   const { data: userData } = await supabase.auth.getUser();
   const userId = userData.user?.id;
 
@@ -12,6 +12,7 @@ export const createThread = async (title: string, content: string, category_id: 
       content,
       category_id,
       user_id: userId,
+      media_urls: mediaUrls,
     },
   ]);
 
