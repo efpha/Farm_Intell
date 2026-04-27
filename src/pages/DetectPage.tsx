@@ -82,141 +82,144 @@ const DetectPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* Upload Section */}
-          <Card className="rounded-3xl shadow-lg border-0">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Leaf className="h-5 w-5 text-emerald-600" />
-                Upload Image
-              </CardTitle>
-            </CardHeader>
+<div className="grid gap-6 lg:grid-cols-2 max-w-5xl mx-auto">
 
-            <CardContent>
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                className="hidden"
-                onChange={handleImageChange}
-              />
+  {/* Upload Section */}
+  <Card className="rounded-2xl shadow border-0">
+    <CardHeader className="pb-1">
+      <CardTitle className="flex items-center gap-2 text-base">
+        <Leaf className="h-4 w-4 text-emerald-600" />
+        Upload Image
+      </CardTitle>
+      <p className="text-xs text-slate-500">
+        Upload a plant image for AI detection
+      </p>
+    </CardHeader>
 
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setIsDragging(true);
-                }}
-                onDragLeave={() => setIsDragging(false)}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setIsDragging(false);
-                  const file = e.dataTransfer.files[0];
-                  if (file) {
-                    handleImageChange({
-                      target: { files: [file] },
-                    } as unknown as React.ChangeEvent<HTMLInputElement>);
-                  }
-                }}
-                className={`transition-all cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center ${
-                  isDragging
-                    ? "border-emerald-600 bg-emerald-50"
-                    : "border-slate-300 hover:border-emerald-500"
-                }`}
-              >
-                <Upload className="mx-auto h-10 w-10 text-slate-500" />
-                <p className="mt-4 text-sm text-slate-600">
-                  Click or drag & drop an image
-                </p>
-              </div>
+    <CardContent className="space-y-4">
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleImageChange}
+      />
 
-              {selectedImage && (
-                <div className="mt-6 rounded-2xl overflow-hidden border shadow-sm">
-                  <img
-                    src={selectedImage}
-                    alt="Selected"
-                    className="w-full h-64 object-cover"
-                  />
-                </div>
-              )}
+      {/* Dropzone */}
+      <div
+        onClick={() => fileInputRef.current?.click()}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsDragging(false);
+          const file = e.dataTransfer.files[0];
+          if (file) {
+            handleImageChange({
+              target: { files: [file] },
+            } as unknown as React.ChangeEvent<HTMLInputElement>);
+          }
+        }}
+        className={`cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition ${
+          isDragging
+            ? "border-emerald-600 bg-emerald-50"
+            : "border-slate-300 hover:border-emerald-500"
+        }`}
+      >
+        <Upload className="mx-auto h-6 w-6 text-slate-500" />
+        <p className="mt-2 text-xs text-slate-600">
+          Click or drag image
+        </p>
+      </div>
 
-              <Button
-                onClick={analyzeImage}
-                disabled={isAnalyzing || !selectedImage}
-                className="mt-6 w-full rounded-xl bg-emerald-600 hover:bg-emerald-700"
-              >
-                {isAnalyzing ? "Analyzing with AI..." : "Detect Disease"}
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Results Section */}
-          <Card className="rounded-3xl shadow-lg border-0">
-            <CardHeader>
-              <CardTitle>Detection Results</CardTitle>
-            </CardHeader>
-
-            <CardContent>
-              {isAnalyzing && (
-                <div className="space-y-4">
-                  <div className="h-4 w-full animate-pulse rounded bg-slate-200" />
-                  <div className="h-4 w-3/4 animate-pulse rounded bg-slate-200" />
-                  <div className="h-4 w-1/2 animate-pulse rounded bg-slate-200" />
-                </div>
-              )}
-
-              {!isAnalyzing && !result && (
-                <div className="text-center text-slate-500 py-10">
-                  Upload an image to view AI analysis results.
-                </div>
-              )}
-
-              {result && (
-                <div className="space-y-6">
-                  <div>
-                    <h2 className="text-2xl font-bold text-emerald-700">
-                      {result.disease}
-                    </h2>
-
-                  </div>
-
-                  {result.healthy && (
-                    <div className="rounded-xl bg-emerald-50 p-4 text-emerald-700 font-medium">
-                      ✔ {result.healthy}
-                    </div>
-                  )}
-
-                  {result.cause && (
-                    <div>
-                      <h4 className="font-semibold text-slate-800">Cause</h4>
-                      <p className="text-slate-600 text-sm">
-                        {result.cause}
-                      </p>
-                    </div>
-                  )}
-
-                  {result.symptoms && (
-                    <div>
-                      <h4 className="font-semibold text-slate-800">Symptoms</h4>
-                      <p className="text-slate-600 text-sm">
-                        {result.symptoms}
-                      </p>
-                    </div>
-                  )}
-
-                  {result.treatment && (
-                    <div>
-                      <h4 className="font-semibold text-slate-800">Treatment</h4>
-                      <p className="text-slate-600 text-sm">
-                        {result.treatment}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+      {/* Preview */}
+      {selectedImage && (
+        <div className="relative rounded-xl overflow-hidden border">
+          <img
+            src={selectedImage}
+            alt="Selected"
+            className="w-full h-40 object-cover"
+          />
+          <button
+            onClick={() => setSelectedImage(null)}
+            className="absolute top-1 right-1 bg-white/80 px-2 py-0.5 text-[10px] rounded"
+          >
+            ✕
+          </button>
         </div>
+      )}
+
+      {/* Action */}
+      <Button
+        onClick={analyzeImage}
+        disabled={isAnalyzing || !selectedImage}
+        className="w-full rounded-lg bg-emerald-600 hover:bg-emerald-700 h-9 text-xs"
+      >
+        {isAnalyzing ? "Analyzing..." : "Detect"}
+      </Button>
+    </CardContent>
+  </Card>
+
+  {/* Results Section */}
+  <Card className="rounded-2xl shadow border-0">
+    <CardHeader className="pb-1">
+      <CardTitle className="text-base">Results</CardTitle>
+      <p className="text-xs text-slate-500">
+        AI insights
+      </p>
+    </CardHeader>
+
+    <CardContent className="space-y-4">
+
+      {/* Loading */}
+      {isAnalyzing && (
+        <div className="space-y-2">
+          <div className="h-3 w-full animate-pulse rounded bg-slate-200" />
+          <div className="h-3 w-3/4 animate-pulse rounded bg-slate-200" />
+        </div>
+      )}
+
+      {/* Empty */}
+      {!isAnalyzing && !result && (
+        <div className="text-center text-slate-400 py-6 text-xs">
+          No results yet
+        </div>
+      )}
+
+      {/* Results */}
+      {result && (
+        <div className="space-y-4">
+
+          <h2 className="text-lg font-semibold text-emerald-700">
+            {result.disease}
+          </h2>
+
+          {result.healthy && (
+            <div className="rounded-lg bg-emerald-50 px-3 py-2 text-emerald-700 text-xs">
+              ✔ {result.healthy}
+            </div>
+          )}
+
+          <div className="space-y-2 text-xs">
+            {result.cause && (
+              <p><span className="font-medium text-slate-800">Cause:</span> {result.cause}</p>
+            )}
+            {result.symptoms && (
+              <p><span className="font-medium text-slate-800">Symptoms:</span> {result.symptoms}</p>
+            )}
+            {result.treatment && (
+              <p><span className="font-medium text-slate-800">Treatment:</span> {result.treatment}</p>
+            )}
+          </div>
+
+        </div>
+      )}
+    </CardContent>
+  </Card>
+</div>
       </div>
     </div>
   );
